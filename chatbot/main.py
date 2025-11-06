@@ -8,11 +8,15 @@ import time
 from datetime import datetime
 
 from rag_store import RAGDataStore
+from symptom_reasoning import SymptomMatcher
+
 
 rag = RAGDataStore()
 rag.build_store("diagnosis")
 rag.build_store("counselling")
 rag.build_store("wellness")
+
+matcher = SymptomMatcher()
 
 load_dotenv()
 
@@ -146,69 +150,111 @@ def analyze_user_profile(state: Dict[str, Any]) -> Dict[str, Any]:
         "physical": ["headache", "chest pain", "trembling", "sweating"]
     }
     
+    # Weighted symptom memory (recent mentions count more)
     for category, keywords in symptom_keywords.items():
         if any(kw in user_input for kw in keywords):
-            profile["symptom_mentions"][category] = \
-                profile["symptom_mentions"].get(category, 0) + 1
-    
+            previous = profile["symptom_mentions"].get(category, 0.8)
+            profile["symptom_mentions"][category] = round(previous * 0.9 + 1.0, 2)
+        else:
+            # Gradually decay old symptom weight
+            if category in profile["symptom_mentions"]:
+                profile["symptom_mentions"][category] = round(profile["symptom_mentions"][category] * 0.9, 2)
+
+
     return state
 
 
 # ---------------------------------
-# Diagnosis Analysis
+# Enhanced Diagnosis Analysis
 # ---------------------------------
+
 def analyze_symptoms_for_diagnosis(state: Dict[str, Any]) -> Dict[str, Any]:
-    """Use Mistral with RAG context to suggest possible conditions"""
-    
-    if state["mode"] != "diagnosis":
+    """Multi-turn reasoning for diagnosis using accumulated symptoms and semantic similarity."""
+
+    if state.get("mode") != "diagnosis":
         return state
-    
-    # Get relevant diagnostic information
-    retrieved_context = state.get("retrieved_context", "")
-    
-    # Build comprehensive symptom history
-    symptom_summary = ""
-    if state.get("user_profile"):
-        symptoms = state["user_profile"].get("symptom_mentions", {})
-        if symptoms:
-            symptom_summary = "User has mentioned symptoms related to: " + \
-                            ", ".join([f"{k} ({v} times)" for k, v in symptoms.items()])
-    
-    system_prompt = """You are a mental health assessment assistant.
-    Based on the user's symptoms and diagnostic criteria provided, suggest possible conditions
-    that warrant professional evaluation. 
-    
-    IMPORTANT:
-    - Do NOT make definitive diagnoses
-    - Always recommend professional evaluation
-    - Mention that only licensed professionals can diagnose
-    - List 1-3 possible conditions that match symptoms
-    - Explain why symptoms align with these conditions
-    - Be compassionate and non-alarming"""
-    
+
+    user_input = state["user_input"]
+    user_profile = state.get("user_profile", {})
+    conversation_history = state.get("conversation_history", [])
+
+    # --- Step 1: Aggregate last few user messages for multi-turn reasoning ---
+    last_user_messages = [
+        msg["content"] for msg in conversation_history[-6:]
+        if msg["role"] == "user"
+    ]
+    aggregated_text = " ".join(last_user_messages + [user_input])
+
+    # --- Step 2: Combine with symptom profile summary ---
+    symptoms = user_profile.get("symptom_mentions", {})
+    symptom_summary = ", ".join(
+        f"{k} ({v:.1f})" for k, v in symptoms.items() if v > 0.3
+    )
+    composite_input = (
+        f"Recent user statements: {aggregated_text}\n"
+        f"Symptom history: {symptom_summary or 'none'}"
+    )
+
+    # --- Step 3: Match using semantic symptom matcher ---
+    matches = matcher.match(composite_input)
+    top_matches = [m for m in matches if m[1] > 0.35]
+
+    if not top_matches:
+        state["diagnosis_confidence"] = {}
+        state["response"] = (
+            "It sounds like you’ve been going through something, but I’m not sure what symptoms are most present. "
+            "Could you tell me a bit more about your mood, energy, sleep, or thoughts lately?"
+        )
+        return state
+
+    state["diagnosis_confidence"] = {cond: round(score, 3) for cond, score in top_matches}
+
+    # --- Step 4: Retrieve contextual diagnostic info (RAG) ---
+    try:
+        retrieved_context = rag_system.retrieve(composite_input, category="diagnosis", k=5)
+        state["retrieved_context"] = retrieved_context
+    except Exception as e:
+        print(f"[WARN] Diagnosis retrieval failed: {e}")
+        retrieved_context = ""
+
+    # --- Step 5: Structured reasoning prompt for Mistral ---
+    system_prompt = """You are a structured mental health reasoning assistant.
+You have multiple messages from the user, with their described symptoms over time.
+Steps:
+1. Summarize key emotional, cognitive, and physical symptoms.
+2. Cross-check with DSM-5 criteria from the provided context.
+3. Suggest 1–3 possible conditions that might fit (without diagnosing).
+4. Highlight confidence scores and uncertainty.
+5. Encourage professional evaluation.
+6. Be warm, supportive, and non-alarming."""
+
+    confidence_str = ", ".join([f"{c}: {p}" for c, p in state["diagnosis_confidence"].items()])
+
     messages = [
         {"role": "system", "content": system_prompt},
-        {"role": "user", "content": f"Diagnostic criteria:\n{retrieved_context}"},
-        {"role": "user", "content": f"{symptom_summary}\n\nUser's current message: {state['user_input']}"}
+        {"role": "user", "content": f"Diagnostic context:\n{retrieved_context}"},
+        {"role": "user", "content": f"Condition confidence: {confidence_str}\n\nUser context:\n{composite_input}"}
     ]
-    
+
     try:
-        response = call_mistral_with_retry(
-            client, "mistral-small-latest", messages
-        )
-        
-        # Extract mentioned conditions for tracking
-        content = response.choices[0].message.content
-        conditions = ["depression", "anxiety", "bipolar", "ptsd", "ocd", "panic"]
-        diagnosed = [c for c in conditions if c in content.lower()]
-        
+        response = call_mistral_with_retry(client, "mistral-small-latest", messages)
+        content = response.choices[0].message.content.strip()
+        state["response"] = content
+
+        # --- Track conditions mentioned ---
+        possible_conditions = ["depression", "anxiety", "bipolar", "ptsd", "ocd", "panic"]
+        found = [c for c in possible_conditions if c in content.lower()]
         if "diagnosed_conditions" not in state:
             state["diagnosed_conditions"] = []
-        state["diagnosed_conditions"].extend(diagnosed)
-        
+        state["diagnosed_conditions"].extend(found)
+
     except Exception as e:
-        print(f"[ERROR] Diagnosis analysis failed: {e}")
-    
+        print(f"[ERROR] Diagnosis reasoning failed: {e}")
+        state["response"] = (
+            "I'm sorry, I couldn’t fully analyze your symptoms. "
+            "Could you share how these feelings have changed over time — for example, have they lasted weeks or months?"
+        )
+
     return state
 
 
@@ -391,16 +437,33 @@ def diagnosis_node(state: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def generate_node(state: Dict[str, Any]) -> Dict[str, Any]:
-    """Generate response"""
+    """Generate the assistant's response, optionally including diagnosis confidence."""
     if not state.get("safe", True):
+        # Crisis handling shortcut
         state["response"] = crisis_response(state["user_input"])
     else:
+        # Generate contextual Mistral response
         state["response"] = generate_response(state)
-    
-    # Update conversation history
+
+        # --- Add confidence summary if in diagnosis mode ---
+        if state.get("mode") == "diagnosis" and state.get("diagnosis_confidence"):
+            conf_text = []
+            for cond, score in state["diagnosis_confidence"].items():
+                if score >= 0.4:  # filter low-confidence noise
+                    conf_text.append(f"{cond.capitalize()} ({score:.2f})")
+            if conf_text:
+                confidence_summary = (
+                    "\n\n---\n**Preliminary Symptom Match:**\n"
+                    + ", ".join(conf_text)
+                    + "\n*(These are similarity estimates — not medical diagnoses. "
+                      "Please consult a licensed professional for assessment.)*"
+                )
+                state["response"] += confidence_summary
+
+    # --- Update conversation history ---
     if "conversation_history" not in state:
         state["conversation_history"] = []
-    
+
     state["conversation_history"].append({
         "role": "user",
         "content": state["user_input"],
@@ -411,8 +474,9 @@ def generate_node(state: Dict[str, Any]) -> Dict[str, Any]:
         "content": state["response"],
         "timestamp": datetime.now().isoformat()
     })
-    
+
     return state
+
 
 
 def log_node(state: Dict[str, Any]) -> Dict[str, Any]:
@@ -420,10 +484,15 @@ def log_node(state: Dict[str, Any]) -> Dict[str, Any]:
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print(f"\n[{timestamp}] Mode: {state.get('mode')} | Risk: {state.get('risk_level', 'N/A')}")
     print(f"User: {state['user_input']}")
-    print(f"Assistant: {state['response']}\n")
+    print(f"[LOG] Assistant response captured ({len(state['response'])} chars)")
+
     
     if state.get("diagnosed_conditions"):
         print(f"Tracked conditions: {set(state['diagnosed_conditions'])}")
+    
+    if state.get("diagnosis_confidence"):
+        print(f"Diagnosis confidence: {state['diagnosis_confidence']}")
+
     
     return state
 
