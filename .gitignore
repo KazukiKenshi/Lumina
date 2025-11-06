@@ -1,3 +1,4 @@
 vectorstores/
 .vscode/
 __pycache__/
+sample_prompt.txt

@@ -9,6 +9,9 @@ from datetime import datetime
 
 from rag_store import RAGDataStore
 from symptom_reasoning import SymptomMatcher
+from post_process import format_for_avatar
+from mode_classifier import classify_mode_with_context
+
 
 
 rag = RAGDataStore()
@@ -70,51 +73,6 @@ def safety_classifier(user_input: str) -> Dict[str, Any]:
         return {"safe": True, "mode": "counselling", "risk_level": "high"}
     
     return {"safe": True, "mode": "general", "risk_level": "low"}
-
-
-# ---------------------------------
-# Mode Selector with Mistral
-# ---------------------------------
-def select_mode_mistral(user_input: str, conversation_history: List[Dict]) -> str:
-    """Use Mistral to classify intent with conversation context"""
-    
-    # Build context from recent history
-    history_context = ""
-    if conversation_history:
-        recent = conversation_history[-3:]  # Last 3 exchanges
-        history_context = "Recent conversation:\n"
-        for msg in recent:
-            history_context += f"{msg['role']}: {msg['content'][:100]}\n"
-    
-    system_prompt = """You are a mental health assistant classifier. 
-    Analyze the user's message and classify into ONE category:
-    
-    - 'diagnosis': User describes symptoms or asks about mental health conditions
-    - 'counselling': User seeks emotional support, coping strategies, or therapy techniques
-    - 'wellness': User asks about general mental wellness, lifestyle, or prevention
-    
-    Consider conversation context. If user previously discussed symptoms and now seeks help,
-    classify as 'counselling'. Return only the category name."""
-    
-    messages = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": f"{history_context}\n\nCurrent message: {user_input}"}
-    ]
-    
-    try:
-        response = client.chat.complete(
-            model="mistral-small-latest",
-            messages=messages,
-            temperature=0
-        )
-        intent = response.choices[0].message.content.strip().lower()
-        
-        if intent in ["counselling", "diagnosis", "wellness"]:
-            return intent
-        return "wellness"
-    except Exception as e:
-        print(f"[WARN] Mode selector failed: {e}")
-        return "wellness"
 
 
 # ---------------------------------
@@ -211,7 +169,14 @@ def analyze_symptoms_for_diagnosis(state: Dict[str, Any]) -> Dict[str, Any]:
 
     # --- Step 4: Retrieve contextual diagnostic info (RAG) ---
     try:
-        retrieved_context = rag_system.retrieve(composite_input, category="diagnosis", k=5)
+        conditions = list(state.get("diagnosis_confidence", {}).keys())
+        retrieved_context = rag_system.retrieve(
+            composite_input,
+            category="diagnosis",
+            k=4,
+            hint_conditions=conditions,
+            summarize=True
+        )
         state["retrieved_context"] = retrieved_context
     except Exception as e:
         print(f"[WARN] Diagnosis retrieval failed: {e}")
@@ -295,19 +260,37 @@ Your life has value. This pain is temporary, even though it doesn't feel that wa
 # Mistral Chat with Retry
 # ---------------------------------
 def call_mistral_with_retry(client, model, messages, max_retries=3):
-    """Handle rate limiting with exponential backoff"""
+    """Handle rate limits and capacity errors with fallbacks."""
+    fallback_model = "mistral-tiny"  # much less likely to exceed capacity
+
     for i in range(max_retries):
         try:
-            response = client.chat.complete(model=model, messages=messages)
-            return response
+            return client.chat.complete(model=model, messages=messages)
         except Exception as e:
-            if "429" in str(e):
-                wait = 2 ** i
+            err_str = str(e)
+
+            # Explicit capacity exceeded handling
+            if "service_tier_capacity_exceeded" in err_str or "3505" in err_str:
+                print(f"[WARN] {model} is at capacity. Switching to {fallback_model}.")
+                try:
+                    return client.chat.complete(model=fallback_model, messages=messages)
+                except Exception as inner_e:
+                    print(f"[WARN] Fallback also failed: {inner_e}")
+                    return None
+
+            # Standard 429 retry
+            if "429" in err_str:
+                wait = (2 ** i) + 2
                 print(f"[WARN] Rate limited, retrying in {wait}s...")
                 time.sleep(wait)
-            else:
-                raise
-    raise Exception("Max retries exceeded")
+                continue
+
+            # Other failures
+            print(f"[ERROR] Mistral API error: {e}")
+            return None
+
+    raise Exception("Max retries exceeded or all fallbacks failed.")
+
 
 
 # ---------------------------------
@@ -400,13 +383,16 @@ def safety_check_node(state: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def mode_select_node(state: Dict[str, Any]) -> Dict[str, Any]:
-    """Select conversation mode"""
+    """Select mode using local NLP classifier."""
     if state.get("safe", True) and state.get("mode") != "crisis":
-        state["mode"] = select_mode_mistral(
-            state["user_input"],
-            state.get("conversation_history", [])
-        )
+        history = " ".join([m["content"] for m in state.get("conversation_history", [])[-3:]
+                            if m["role"] == "user"])
+        mode, conf = classify_mode_with_context(state["user_input"], history)
+        state["mode"] = mode
+        state["mode_confidence"] = conf
+        print(f"[MODE] {mode.upper()} (confidence: {conf:.2f})")
     return state
+
 
 
 def profile_analysis_node(state: Dict[str, Any]) -> Dict[str, Any]:
@@ -475,26 +461,34 @@ def generate_node(state: Dict[str, Any]) -> Dict[str, Any]:
         "timestamp": datetime.now().isoformat()
     })
 
+    state["avatar_output"] = format_for_avatar(state)
     return state
 
 
 
 def log_node(state: Dict[str, Any]) -> Dict[str, Any]:
-    """Log conversation for monitoring"""
+    """Log conversation and avatar emotion metadata."""
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print(f"\n[{timestamp}] Mode: {state.get('mode')} | Risk: {state.get('risk_level', 'N/A')}")
     print(f"User: {state['user_input']}")
-    print(f"[LOG] Assistant response captured ({len(state['response'])} chars)")
+    print(f"Assistant: {state['response']}")
 
-    
     if state.get("diagnosed_conditions"):
         print(f"Tracked conditions: {set(state['diagnosed_conditions'])}")
-    
+
     if state.get("diagnosis_confidence"):
         print(f"Diagnosis confidence: {state['diagnosis_confidence']}")
 
-    
+    # 🆕 Log emotion + animation metadata if available
+    avatar_meta = state.get("avatar_output")
+    if avatar_meta:
+        print(f"Emotion: {avatar_meta.get('emotion')}")
+        print(f"Expression: {avatar_meta.get('expression')}")
+        print(f"Animation: {avatar_meta.get('animation')}")
+        print(f"Estimated speech duration: {avatar_meta.get('duration')}s")
+
     return state
+
 
 
 # ---------------------------------
