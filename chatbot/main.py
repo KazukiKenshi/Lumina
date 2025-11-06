@@ -7,11 +7,12 @@ from mistralai import Mistral
 import time
 from datetime import datetime
 
-# For RAG components
-from langchain_community.vectorstores import FAISS
-from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.docstore.document import Document
+from rag_store import RAGDataStore
+
+rag = RAGDataStore()
+rag.build_store("diagnosis")
+rag.build_store("counselling")
+rag.build_store("wellness")
 
 load_dotenv()
 
@@ -33,185 +34,9 @@ class MentalHealthState(TypedDict, total=False):
     diagnosed_conditions: List[str]
 
 
-# ---------------------------------
-# RAG Setup with Mental Health Corpus
-# ---------------------------------
-class MentalHealthRAG:
-    def __init__(self):
-        self.embeddings = HuggingFaceEmbeddings(
-            model_name="sentence-transformers/all-MiniLM-L6-v2"
-        )
-        self.vectorstores = {}
-        self._initialize_knowledge_base()
-    
-    def _initialize_knowledge_base(self):
-        """Initialize separate vector stores for different mental health domains"""
-        
-        # Diagnosis knowledge base (DSM-5 style)
-        diagnosis_docs = [
-            Document(page_content="""
-            Major Depressive Disorder (MDD):
-            Symptoms include: persistent sad mood, loss of interest in activities, 
-            significant weight changes, sleep disturbances (insomnia or hypersomnia),
-            fatigue, feelings of worthlessness or guilt, difficulty concentrating,
-            recurrent thoughts of death. Symptoms must persist for at least 2 weeks.
-            """, metadata={"category": "diagnosis", "condition": "depression"}),
-            
-            Document(page_content="""
-            Generalized Anxiety Disorder (GAD):
-            Characterized by excessive worry about various events or activities,
-            occurring more days than not for at least 6 months. Symptoms include:
-            restlessness, fatigue, difficulty concentrating, irritability,
-            muscle tension, sleep disturbances. The anxiety is difficult to control.
-            """, metadata={"category": "diagnosis", "condition": "anxiety"}),
-            
-            Document(page_content="""
-            Bipolar Disorder:
-            Involves episodes of mania/hypomania and depression. Manic symptoms include:
-            elevated mood, increased energy, decreased need for sleep, racing thoughts,
-            impulsive behavior, inflated self-esteem. Depressive episodes mirror MDD.
-            Type I requires at least one manic episode; Type II involves hypomania.
-            """, metadata={"category": "diagnosis", "condition": "bipolar"}),
-            
-            Document(page_content="""
-            Panic Disorder:
-            Recurrent unexpected panic attacks with intense fear and physical symptoms:
-            palpitations, sweating, trembling, shortness of breath, chest pain,
-            nausea, dizziness, fear of losing control or dying. Followed by persistent
-            worry about future attacks or behavioral changes to avoid attacks.
-            """, metadata={"category": "diagnosis", "condition": "panic"}),
-            
-            Document(page_content="""
-            Social Anxiety Disorder:
-            Marked fear of social situations where scrutiny by others may occur.
-            Fear of embarrassment, humiliation, or negative evaluation. Social situations
-            provoke immediate anxiety, are avoided or endured with distress.
-            Symptoms persist for 6+ months and cause significant impairment.
-            """, metadata={"category": "diagnosis", "condition": "social_anxiety"}),
-            
-            Document(page_content="""
-            Obsessive-Compulsive Disorder (OCD):
-            Presence of obsessions (recurrent intrusive thoughts) and/or compulsions
-            (repetitive behaviors or mental acts). Common themes: contamination,
-            symmetry, forbidden thoughts. Compulsions are performed to reduce anxiety
-            but provide only temporary relief. Time-consuming and cause distress.
-            """, metadata={"category": "diagnosis", "condition": "ocd"}),
-            
-            Document(page_content="""
-            Post-Traumatic Stress Disorder (PTSD):
-            Develops after exposure to traumatic event. Symptoms include: intrusive
-            memories, flashbacks, nightmares, avoidance of trauma reminders,
-            negative thoughts and mood, hyperarousal (easily startled, on edge).
-            Symptoms persist beyond 1 month and cause significant impairment.
-            """, metadata={"category": "diagnosis", "condition": "ptsd"}),
-        ]
-        
-        # Counselling/therapeutic techniques
-        counselling_docs = [
-            Document(page_content="""
-            Cognitive Behavioral Therapy (CBT) for Depression:
-            Identify negative thought patterns (cognitive distortions) such as
-            all-or-nothing thinking, overgeneralization, mental filtering.
-            Challenge these thoughts with evidence. Replace with balanced thoughts.
-            Behavioral activation: schedule pleasurable activities, even when unmotivated.
-            """, metadata={"category": "counselling", "technique": "cbt"}),
-            
-            Document(page_content="""
-            Anxiety Management Techniques:
-            Deep breathing: 4-7-8 technique (inhale 4, hold 7, exhale 8).
-            Progressive muscle relaxation: tense and release muscle groups systematically.
-            Grounding techniques: 5-4-3-2-1 method (5 things you see, 4 you touch, etc.).
-            Exposure therapy: gradual confrontation of feared situations.
-            """, metadata={"category": "counselling", "technique": "anxiety_management"}),
-            
-            Document(page_content="""
-            Mindfulness and Acceptance:
-            Non-judgmental awareness of present moment. Observe thoughts without
-            engaging. Mindful breathing meditation. Body scan exercises.
-            Acceptance and Commitment Therapy (ACT): accepting difficult emotions
-            while committing to value-based actions. Defusion techniques.
-            """, metadata={"category": "counselling", "technique": "mindfulness"}),
-            
-            Document(page_content="""
-            Crisis Intervention and Safety Planning:
-            Immediate risk assessment. Identify warning signs and triggers.
-            Create safety plan: coping strategies, social supports to contact,
-            professionals to call, means restriction. Emphasize that crisis is temporary.
-            Always recommend professional help for suicidal ideation.
-            """, metadata={"category": "counselling", "technique": "crisis"}),
-            
-            Document(page_content="""
-            Sleep Hygiene for Mental Health:
-            Maintain consistent sleep schedule. Create relaxing bedtime routine.
-            Avoid screens 1 hour before bed. Keep bedroom cool, dark, and quiet.
-            Limit caffeine after 2pm. Exercise regularly but not close to bedtime.
-            Address racing thoughts with worry journal before bed.
-            """, metadata={"category": "counselling", "technique": "sleep"}),
-            
-            Document(page_content="""
-            Building Emotional Resilience:
-            Develop strong social connections. Practice self-compassion.
-            Set realistic goals and celebrate small wins. Maintain physical health
-            through exercise and nutrition. Learn stress management skills.
-            Identify personal strengths and values. Seek meaning and purpose.
-            """, metadata={"category": "counselling", "technique": "resilience"}),
-        ]
-        
-        # General wellness
-        wellness_docs = [
-            Document(page_content="""
-            The Connection Between Physical and Mental Health:
-            Regular exercise releases endorphins and reduces stress hormones.
-            Nutrition affects neurotransmitter production (omega-3s, B vitamins).
-            Gut-brain axis influences mood. Adequate sleep is crucial for
-            emotional regulation. Chronic stress impacts immune function.
-            """, metadata={"category": "wellness", "topic": "mind_body"}),
-            
-            Document(page_content="""
-            Building Healthy Relationships:
-            Practice active listening. Set healthy boundaries. Communicate needs
-            clearly and assertively. Show empathy and validation. Address conflicts
-            constructively. Balance give and take. Recognize toxic relationships.
-            Seek support from trusted individuals. Join communities of interest.
-            """, metadata={"category": "wellness", "topic": "relationships"}),
-            
-            Document(page_content="""
-            Stress Management in Daily Life:
-            Time management: prioritize tasks, break large projects into steps.
-            Set realistic expectations. Learn to say no. Take regular breaks.
-            Practice self-care activities. Engage in hobbies. Limit news consumption.
-            Create work-life boundaries. Use relaxation techniques daily.
-            """, metadata={"category": "wellness", "topic": "stress"}),
-        ]
-        
-        # Create vector stores
-        all_docs = diagnosis_docs + counselling_docs + wellness_docs
-        
-        # Main store
-        self.vectorstores['main'] = FAISS.from_documents(all_docs, self.embeddings)
-        
-        # Specialized stores
-        self.vectorstores['diagnosis'] = FAISS.from_documents(
-            diagnosis_docs, self.embeddings
-        )
-        self.vectorstores['counselling'] = FAISS.from_documents(
-            counselling_docs, self.embeddings
-        )
-        self.vectorstores['wellness'] = FAISS.from_documents(
-            wellness_docs, self.embeddings
-        )
-    
-    def retrieve(self, query: str, mode: str, k: int = 3) -> str:
-        """Retrieve relevant documents based on mode"""
-        store = self.vectorstores.get(mode, self.vectorstores['main'])
-        docs = store.similarity_search(query, k=k)
-        
-        context = "\n\n---\n\n".join([doc.page_content for doc in docs])
-        return context
-
-
 # Initialize RAG system
-rag_system = MentalHealthRAG()
+rag_system = RAGDataStore(base_dir="data", store_dir="vectorstores")
+
 
 
 # ---------------------------------
@@ -544,15 +369,20 @@ def profile_analysis_node(state: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def retrieve_node(state: Dict[str, Any]) -> Dict[str, Any]:
-    """Retrieve relevant knowledge from RAG system"""
+    """Retrieve relevant knowledge from external RAG datastore"""
     if state.get("safe", True):
         mode = state.get("mode", "wellness")
-        state["retrieved_context"] = rag_system.retrieve(
-            state["user_input"],
-            mode,
-            k=3
-        )
+        try:
+            state["retrieved_context"] = rag_system.retrieve(
+                state["user_input"],
+                category=mode,
+                k=3
+            )
+        except Exception as e:
+            print(f"[WARN] Retrieval failed: {e}")
+            state["retrieved_context"] = ""
     return state
+
 
 
 def diagnosis_node(state: Dict[str, Any]) -> Dict[str, Any]:
@@ -671,6 +501,13 @@ class ChatSession:
 # Main Execution
 # ---------------------------------
 if __name__ == "__main__":
+
+    for domain in ["diagnosis", "counselling", "wellness"]:
+        path = os.path.join("vectorstores", domain)
+        if not os.path.exists(path):
+            print(f"Building vector store for {domain}...")
+            rag_system.build_store(domain)
+
     print("=" * 60)
     print("Mental Health Chatbot with RAG")
     print("Type 'quit' to exit, 'summary' for session summary")
