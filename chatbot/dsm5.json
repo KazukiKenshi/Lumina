@@ -1,0 +1,159 @@
+[
+    {
+        "condition": "Attention-Deficit/Hyperactivity Disorder (ADHD)",
+        "criteria": {
+            "main": "Persistent inattention and/or hyperactivity-impulsivity interfering with functioning or development",
+            "symptoms": {
+                "inattention": [
+                    "Careless mistakes",
+                    "Difficulty sustaining attention",
+                    "Does not listen",
+                    "Fails to finish tasks",
+                    "Poor organization",
+                    "Avoids sustained effort",
+                    "Loses things",
+                    "Easily distracted",
+                    "Forgetful"
+                ],
+                "hyperactivity_impulsivity": [
+                    "Fidgets or squirms",
+                    "Leaves seat",
+                    "Runs/climbs inappropriately or restless",
+                    "Cannot play quietly",
+                    "On the go",
+                    "Talks excessively",
+                    "Blurts out answers",
+                    "Difficulty waiting turn",
+                    "Interrupts/intrudes"
+                ]
+            },
+            "other_requirements": [
+                "Symptoms present before age 12",
+                "Symptoms occur in 2+ settings",
+                "Symptoms cause impairment",
+                "Not better explained by another disorder"
+            ]
+        },
+        "duration_requirement": "≥6 months, inconsistent with developmental level, negative functional impact. For ages 17+, ≥5 symptoms required.",
+        "specifiers": {
+            "presentations": {
+                "Combined": "Both inattention and hyperactivity-impulsivity met",
+                "Predominantly Inattentive": "Inattention only",
+                "Predominantly Hyperactive/Impulsive": "Hyperactivity-impulsivity only"
+            },
+            "remission": "Partial remission possible if fewer criteria met but impairment remains",
+            "severity": [
+                "Mild",
+                "Moderate",
+                "Severe"
+            ]
+        },
+        "common_treatments": [
+            "Behavioral therapy",
+            "Cognitive-behavioral therapy",
+            "Psychoeducation & organizational support",
+            "Stimulant medication",
+            "Non-stimulant medication",
+            "Multimodal treatment (combined approaches)"
+        ]
+    },
+    {
+        "condition": "Cyclothymic Disorder",
+        "criteria": {
+            "main": "Chronic fluctuating mood disturbance with numerous periods of hypomanic and depressive symptoms not meeting full episode criteria.",
+            "symptoms": {
+                "hypomanic_symptoms": [
+                    "Numerous periods of hypomanic symptoms that do not meet criteria for a hypomanic episode"
+                ],
+                "depressive_symptoms": [
+                    "Numerous periods of depressive symptoms that do not meet criteria for a major depressive episode"
+                ]
+            },
+            "other_requirements": [
+                "Symptoms present for ≥2 years in adults (≥1 year in children/adolescents)",
+                "Symptoms present at least half the time, no symptom-free period longer than 2 months",
+                "Criteria for major depressive, manic, or hypomanic episode never met",
+                "Not better explained by schizophrenia spectrum/psychotic disorders",
+                "Not attributable to substance or medical condition",
+                "Causes clinically significant distress or impairment"
+            ]
+        },
+        "duration_requirement": "At least 2 years in adults (1 year in children/adolescents), with symptoms present at least half the time and no symptom-free interval longer than 2 months.",
+        "specifiers": {
+            "presentations": {},
+            "remission": "",
+            "severity": [],
+            "other_specifiers": [
+                "With anxious distress"
+            ]
+        },
+        "common_treatments": [
+            "Psychotherapy (e.g., cognitive-behavioral therapy, interpersonal therapy)",
+            "Mood stabilizers (e.g., lithium, lamotrigine)",
+            "Atypical antipsychotics (for mood stabilization in some cases)",
+            "Psychoeducation and lifestyle management (regular sleep, stress reduction, structured routines)"
+        ]
+    },
+    {
+        "condition": "Dissociative Amnesia",
+        "codes": {
+            "without_fugue": "300.12 (F44.0)",
+            "with_fugue": "300.13 (F44.1)"
+        },
+        "criteria": [
+            "Inability to recall important autobiographical information, usually of a traumatic or stressful nature, inconsistent with ordinary forgetting.",
+            "Symptoms cause clinically significant distress or impairment in social, occupational, or other important areas of functioning.",
+            "Not attributable to the physiological effects of a substance (e.g., alcohol, drug, medication) or a neurological/medical condition (e.g., seizures, traumatic brain injury).",
+            "Not better explained by other disorders such as dissociative identity disorder, PTSD, acute stress disorder, somatic symptom disorder, or neurocognitive disorder."
+        ],
+        "specifiers": {
+            "with_dissociative_fugue": "Purposeful travel or bewildered wandering associated with amnesia for identity or autobiographical information."
+        },
+        "duration_requirement": "No fixed minimum duration; episodes may last minutes to decades. Onset can be sudden or delayed, often after trauma.",
+        "forms": [
+            "Localized amnesia: inability to recall events during a circumscribed period.",
+            "Selective amnesia: recall of some but not all events in a circumscribed period.",
+            "Generalized amnesia: rare; loss of entire life history and identity.",
+            "Systematized amnesia: loss of memory for a specific category (e.g., family, abuse).",
+            "Continuous amnesia: ongoing inability to form or retain new memories."
+        ],
+        "associated_features": [
+            "Histories of trauma, child abuse, victimization.",
+            "Dissociative flashbacks, self-mutilation, suicide attempts, high-risk behaviors.",
+            "Depression, functional neurological symptoms, depersonalization, high hypnotizability.",
+            "Sexual dysfunctions, possible mild traumatic brain injury preceding onset."
+        ],
+        "risk_factors": {
+            "environmental": "Traumatic experiences (war, abuse, disasters, violence).",
+            "genetic_and_physiological": "No specific genetic studies; dissociation has both genetic and environmental influences."
+        },
+        "development_and_course": "Onset may be sudden (especially generalized amnesia). Episodes can be single or recurrent, lasting minutes to decades. Memories may return gradually or suddenly, sometimes with PTSD-like flashbacks. Dissociative capacity may decline with age.",
+        "culture_related_issues": "In some regions (Asia, Middle East, Latin America), may present with non-epileptic seizures or functional neurological symptoms. Triggers may be psychological stresses rather than trauma in restrictive cultures.",
+        "suicide_risk": "Elevated, particularly when memories return suddenly and overwhelm the individual.",
+        "functional_consequences": "Ranges from limited impairment (localized amnesia) to severe vocational and interpersonal disability (generalized amnesia).",
+        "differential_diagnosis": [
+            "Dissociative Identity Disorder",
+            "Posttraumatic Stress Disorder",
+            "Neurocognitive Disorders",
+            "Substance-related Disorders",
+            "Posttraumatic Amnesia due to Brain Injury",
+            "Seizure Disorders",
+            "Catatonic Stupor",
+            "Factitious Disorder and Malingering",
+            "Normal age-related memory changes"
+        ],
+        "comorbidity": [
+            "Depressive disorders (major depressive disorder, dysthymia, adjustment disorders).",
+            "PTSD.",
+            "Somatic symptom disorders and conversion disorder.",
+            "Personality disorders (dependent, avoidant, borderline)."
+        ],
+        "common_treatments": [
+            "Psychotherapy (trauma-focused therapy, CBT, psychodynamic therapy).",
+            "Hypnosis or medication-assisted interviews (e.g., barbiturate-facilitated) in some cases to recover memories.",
+            "Treatment of comorbid conditions (e.g., depression, PTSD).",
+            "Supportive therapy to improve coping, relationships, and reduce distress.",
+            "Crisis intervention and suicide prevention when needed."
+        ]
+    }
+]

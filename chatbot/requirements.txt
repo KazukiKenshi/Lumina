@@ -1,0 +1,8 @@
+langgraph
+langsmith
+langchain[openai]
+IPython
+langchain-tavily
+langchain-community
+faiss-cpu
+sentence-transformers
