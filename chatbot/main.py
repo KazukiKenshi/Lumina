@@ -2,6 +2,7 @@
 from langgraph.graph import StateGraph, END
 from typing import Dict, Any, Optional, TypedDict, List
 import os
+import re
 from dotenv import load_dotenv
 from mistralai import Mistral
 import time
@@ -12,6 +13,7 @@ from symptom_reasoning import SymptomMatcher
 from post_process import format_for_avatar
 from mode_classifier import classify_mode_with_context
 
+from sentence_transformers import util
 
 
 rag = RAGDataStore()
@@ -49,30 +51,68 @@ rag_system = RAGDataStore(base_dir="data", store_dir="vectorstores")
 # ---------------------------------
 # Safety Classifier with Enhanced Detection
 # ---------------------------------
+
 def safety_classifier(user_input: str) -> Dict[str, Any]:
-    """Enhanced safety detection with severity levels"""
-    
+    """
+    Context-aware safety detection with negation handling.
+    Detects suicidal ideation, self-harm, or hopelessness,
+    but avoids triggering on negated statements like
+    "I'm not thinking about suicide."
+    """
+
+    text = user_input.lower().strip()
+
+    # Define risk keyword groups
     critical_keywords = [
         "suicide", "kill myself", "end my life", "want to die",
         "better off dead", "cut myself", "hurt myself", "overdose"
     ]
-    
+
     high_risk_keywords = [
-        "hopeless", "no point", "can't go on", "give up",
-        "no reason to live", "worthless"
+        "hopeless", "worthless", "no reason to live",
+        "can't go on", "give up"
     ]
-    
-    input_lower = user_input.lower()
-    
-    # Check for critical risk
-    if any(kw in input_lower for kw in critical_keywords):
-        return {"safe": False, "mode": "crisis", "risk_level": "critical"}
-    
-    # Check for high risk
-    if any(kw in input_lower for kw in high_risk_keywords):
-        return {"safe": True, "mode": "counselling", "risk_level": "high"}
-    
+
+    # Common negation words
+    negations = ["not", "no", "never", "don’t", "dont", "didn’t", "didnt", "wasn’t", "wasnt", "without"]
+
+    # --- Step 1: detect explicit negations ---
+    for kw in critical_keywords:
+        # e.g., “not thinking about suicide” → skip
+        pattern = rf"(?:{'|'.join(negations)})\W+(?:\w+\W+){{0,2}}{re.escape(kw)}"
+        if re.search(pattern, text):
+            print(f"[SAFETY] Negated keyword detected around '{kw}', marking as safe.")
+            return {"safe": True, "mode": "diagnosis", "risk_level": "low"}
+
+    # --- Step 2: detect actual critical intent ---
+    for kw in critical_keywords:
+        if kw in text:
+            print(f"[SAFETY] Critical risk detected: {kw}")
+            return {"safe": False, "mode": "crisis", "risk_level": "critical"}
+
+    # --- Step 3: detect emotional hopelessness ---
+    for kw in high_risk_keywords:
+        if kw in text:
+            print(f"[SAFETY] High-risk indicator detected: {kw}")
+            return {"safe": True, "mode": "counselling", "risk_level": "high"}
+
+    # --- Step 4: mild distress or safe ---
     return {"safe": True, "mode": "general", "risk_level": "low"}
+
+
+def detect_help_intent(user_input: str) -> bool:
+    """
+    Detect if the user is asking for help, coping advice, or improvement steps.
+    Used to trigger transition from diagnosis to counselling.
+    """
+    text = user_input.lower()
+    help_phrases = [
+        "what should i do", "how can i get better", "how can i cope", "any advice",
+        "help me", "how do i handle", "how to manage", "how can i deal",
+        "how to feel better", "how to fix", "how to stop", "how do i improve",
+        "can you help", "tell me what to do"
+    ]
+    return any(phrase in text for phrase in help_phrases)
 
 
 # ---------------------------------
@@ -129,6 +169,7 @@ def analyze_user_profile(state: Dict[str, Any]) -> Dict[str, Any]:
 def analyze_symptoms_for_diagnosis(state: Dict[str, Any]) -> Dict[str, Any]:
     """Multi-turn reasoning for diagnosis using accumulated symptoms and semantic similarity."""
 
+    # Skip if already diagnosed and confident enough
     if state.get("mode") != "diagnosis":
         return state
 
@@ -136,90 +177,52 @@ def analyze_symptoms_for_diagnosis(state: Dict[str, Any]) -> Dict[str, Any]:
     user_profile = state.get("user_profile", {})
     conversation_history = state.get("conversation_history", [])
 
-    # --- Step 1: Aggregate last few user messages for multi-turn reasoning ---
-    last_user_messages = [
-        msg["content"] for msg in conversation_history[-6:]
-        if msg["role"] == "user"
-    ]
+    # Combine context
+    last_user_messages = [msg["content"] for msg in conversation_history[-6:] if msg["role"] == "user"]
     aggregated_text = " ".join(last_user_messages + [user_input])
 
-    # --- Step 2: Combine with symptom profile summary ---
     symptoms = user_profile.get("symptom_mentions", {})
-    symptom_summary = ", ".join(
-        f"{k} ({v:.1f})" for k, v in symptoms.items() if v > 0.3
-    )
-    composite_input = (
-        f"Recent user statements: {aggregated_text}\n"
-        f"Symptom history: {symptom_summary or 'none'}"
-    )
+    symptom_summary = ", ".join(f"{k} ({v:.1f})" for k, v in symptoms.items() if v > 0.3)
+    composite_input = f"Recent user statements: {aggregated_text}\nSymptom history: {symptom_summary or 'none'}"
 
-    # --- Step 3: Match using semantic symptom matcher ---
+    # Semantic matching
     matches = matcher.match(composite_input)
     top_matches = [m for m in matches if m[1] > 0.35]
+    state["diagnosis_confidence"] = {cond: round(score, 3) for cond, score in top_matches}
 
-    if not top_matches:
-        state["diagnosis_confidence"] = {}
+    # Compute best confidence and condition
+    if top_matches:
+        best_cond, best_score = top_matches[0]
+    else:
+        best_cond, best_score = None, 0.0
+
+    # 🧠 If confidence is low — ask for more info
+    if best_score < 0.55:
         state["response"] = (
-            "It sounds like you’ve been going through something, but I’m not sure what symptoms are most present. "
-            "Could you tell me a bit more about your mood, energy, sleep, or thoughts lately?"
+            "I understand. To get a clearer sense, could you tell me more about how your sleep, energy, or mood have been recently?"
         )
         return state
 
-    state["diagnosis_confidence"] = {cond: round(score, 3) for cond, score in top_matches}
+    # 🩺 When confidence crosses threshold — finalize diagnosis
+    diagnosed_conditions = [cond for cond, score in state["diagnosis_confidence"].items() if score >= 0.55]
+    if diagnosed_conditions:
+        state["diagnosed_conditions"] = list(set(state.get("diagnosed_conditions", []) + diagnosed_conditions))
+        print(f"[DIAGNOSIS] Conditions suspected: {diagnosed_conditions}")
 
-    # --- Step 4: Retrieve contextual diagnostic info (RAG) ---
-    try:
-        conditions = list(state.get("diagnosis_confidence", {}).keys())
-        retrieved_context = rag_system.retrieve(
-            composite_input,
-            category="diagnosis",
-            k=4,
-            hint_conditions=conditions,
-            summarize=True
-        )
-        state["retrieved_context"] = retrieved_context
-    except Exception as e:
-        print(f"[WARN] Diagnosis retrieval failed: {e}")
-        retrieved_context = ""
-
-    # --- Step 5: Structured reasoning prompt for Mistral ---
-    system_prompt = """You are a structured mental health reasoning assistant.
-You have multiple messages from the user, with their described symptoms over time.
-Steps:
-1. Summarize key emotional, cognitive, and physical symptoms.
-2. Cross-check with DSM-5 criteria from the provided context.
-3. Suggest 1–3 possible conditions that might fit (without diagnosing).
-4. Highlight confidence scores and uncertainty.
-5. Encourage professional evaluation.
-6. Be warm, supportive, and non-alarming."""
-
-    confidence_str = ", ".join([f"{c}: {p}" for c, p in state["diagnosis_confidence"].items()])
-
-    messages = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": f"Diagnostic context:\n{retrieved_context}"},
-        {"role": "user", "content": f"Condition confidence: {confidence_str}\n\nUser context:\n{composite_input}"}
-    ]
-
-    try:
-        response = call_mistral_with_retry(client, "mistral-small-latest", messages)
-        content = response.choices[0].message.content.strip()
-        state["response"] = content
-
-        # --- Track conditions mentioned ---
-        possible_conditions = ["depression", "anxiety", "bipolar", "ptsd", "ocd", "panic"]
-        found = [c for c in possible_conditions if c in content.lower()]
-        if "diagnosed_conditions" not in state:
-            state["diagnosed_conditions"] = []
-        state["diagnosed_conditions"].extend(found)
-
-    except Exception as e:
-        print(f"[ERROR] Diagnosis reasoning failed: {e}")
+        # Move to counselling phase automatically
+        state["mode"] = "counselling"
         state["response"] = (
-            "I'm sorry, I couldn’t fully analyze your symptoms. "
-            "Could you share how these feelings have changed over time — for example, have they lasted weeks or months?"
+            f"It seems like your experiences might align with {', '.join(diagnosed_conditions)}. "
+            f"While I can't diagnose, these patterns are often linked to that area. "
+            "Would you like to talk about coping strategies or ways to manage how you've been feeling?"
         )
+        return state
 
+    # If still uncertain
+    state["response"] = (
+        "Thank you for sharing that. I’m still trying to understand the overall picture. "
+        "Could you tell me about when these feelings started or how they affect your day-to-day life?"
+    )
     return state
 
 
@@ -383,15 +386,44 @@ def safety_check_node(state: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def mode_select_node(state: Dict[str, Any]) -> Dict[str, Any]:
-    """Select mode using local NLP classifier."""
+    """Select mode using local NLP classifier and handle dynamic transitions."""
     if state.get("safe", True) and state.get("mode") != "crisis":
-        history = " ".join([m["content"] for m in state.get("conversation_history", [])[-3:]
-                            if m["role"] == "user"])
+        history = " ".join([
+            m["content"] for m in state.get("conversation_history", [])[-3:]
+            if m["role"] == "user"
+        ])
         mode, conf = classify_mode_with_context(state["user_input"], history)
+
+        # --- Dynamic Mode Transitions ---
+        # 1️⃣ If user explicitly asks for help → switch to counselling
+        if detect_help_intent(state["user_input"]):
+            print("[MODE] Help intent detected — switching to COUNSELLING.")
+            mode = "counselling"
+
+        # 2️⃣ If user expresses gratitude → switch to wellness
+        elif any(w in state["user_input"].lower() for w in ["thanks", "thank you", "okay", "ok", "appreciate"]):
+            print("[MODE] Gratitude detected — switching to WELLNESS.")
+            mode = "wellness"
+
+        # 3️⃣ If already diagnosed and confidence is high → prefer counselling
+        elif state.get("diagnosis_confidence"):
+            top_conf = max(state["diagnosis_confidence"].values(), default=0.0)
+            if top_conf >= 0.55 and mode == "diagnosis":
+                print("[MODE] Diagnosis confidence high — transitioning to COUNSELLING.")
+                mode = "counselling"
+
         state["mode"] = mode
         state["mode_confidence"] = conf
+        # Keep a short memory of modes for smoother transitions
+        mode_history = state.get("mode_history", [])
+        mode_history.append(mode.upper())
+        if len(mode_history) > 5:
+            mode_history.pop(0)
+        state["mode_history"] = mode_history
+
         print(f"[MODE] {mode.upper()} (confidence: {conf:.2f})")
     return state
+
 
 
 
@@ -421,12 +453,21 @@ def diagnosis_node(state: Dict[str, Any]) -> Dict[str, Any]:
     """Analyze symptoms for diagnosis mode"""
     return analyze_symptoms_for_diagnosis(state)
 
+def is_repeated_response(new_text, past_texts, threshold=0.85):
+    embeddings = [matcher.embedder.embed_query(new_text)] + [matcher.embedder.embed_query(t) for t in past_texts]
+    new_emb, past_embs = embeddings[0], embeddings[1:]
+    similarities = [util.cos_sim(new_emb, p).item() for p in past_embs]
+    return any(s > threshold for s in similarities)
 
 def generate_node(state: Dict[str, Any]) -> Dict[str, Any]:
     """Generate the assistant's response, optionally including diagnosis confidence."""
     if not state.get("safe", True):
         # Crisis handling shortcut
         state["response"] = crisis_response(state["user_input"])
+    if state.get("mode") == "diagnosis" and state.get("diagnosis_confidence"):
+        best_score = max(state["diagnosis_confidence"].values(), default=0.0)
+        if best_score >= 0.55:
+            state["mode"] = "counselling"
     else:
         # Generate contextual Mistral response
         state["response"] = generate_response(state)
@@ -445,6 +486,18 @@ def generate_node(state: Dict[str, Any]) -> Dict[str, Any]:
                       "Please consult a licensed professional for assessment.)*"
                 )
                 state["response"] += confidence_summary
+
+    # 🧠 Memory check goes here
+    previous_responses = [
+        msg["content"].lower() for msg in state.get("conversation_history", [])[-6:]
+        if msg["role"] == "assistant"
+    ]
+    if is_repeated_response(state["response"], previous_responses, threshold=0.85):
+        print("[MEMORY] Detected semantically repeated question, rephrasing to avoid redundancy.")
+        state["response"] = (
+            "Thanks for sharing that earlier. I remember we discussed it — "
+            "let’s focus on how we can help you cope or make progress from here."
+        )
 
     # --- Update conversation history ---
     if "conversation_history" not in state:
@@ -534,7 +587,8 @@ class ChatSession:
                 "severity_indicators": [],
                 "coping_strategies_tried": [],
                 "support_system": None,
-                "professional_help": None
+                "professional_help": None,
+                "mode_history": []
             },
             "diagnosed_conditions": [],
             "session_id": datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -565,11 +619,11 @@ class ChatSession:
 # ---------------------------------
 if __name__ == "__main__":
 
-    for domain in ["diagnosis", "counselling", "wellness"]:
-        path = os.path.join("vectorstores", domain)
-        if not os.path.exists(path):
-            print(f"Building vector store for {domain}...")
-            rag_system.build_store(domain)
+    # for domain in ["diagnosis", "counselling", "wellness"]:
+    #     path = os.path.join("vectorstores", domain)
+    #     if not os.path.exists(path):
+    #         print(f"Building vector store for {domain}...")
+    #         rag_system.build_store(domain)
 
     print("=" * 60)
     print("Mental Health Chatbot with RAG")
