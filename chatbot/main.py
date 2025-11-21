@@ -37,6 +37,7 @@ class MentalHealthState(TypedDict, total=False):
     mode: str
     retrieved_context: Optional[str]
     response: Optional[str]
+    expression: Optional[str]
     conversation_history: List[Dict[str, str]]
     user_profile: Dict[str, Any]
     session_id: str
@@ -325,7 +326,18 @@ Your role:
 - Suggest possible conditions that warrant evaluation
 - Always recommend consulting a mental health professional
 - Be compassionate, clear, and non-alarming
-- Ask follow-up questions about symptom duration, severity, and impact""",
+- Ask follow-up questions about symptom duration, severity, and impact
+
+IMPORTANT: You must respond in JSON format with two fields:
+{
+  "text": "your response text here",
+  "expression": "neutral" | "sad" | "happy"
+}
+
+Choose the expression that best matches the tone of your response:
+- "neutral": For factual information, questions, or general discussion
+- "sad": When showing empathy for difficult feelings or discussing challenging topics
+- "happy": When being encouraging, celebrating progress, or providing hope""",
         
         "counselling": """You are an empathetic, trained mental health counsellor.
 
@@ -336,7 +348,18 @@ Your approach:
 - Normalize struggles while encouraging growth
 - Be warm, non-judgmental, and supportive
 - Recognize when professional help is needed
-- Follow up on previous discussions""",
+- Follow up on previous discussions
+
+IMPORTANT: You must respond in JSON format with two fields:
+{
+  "text": "your response text here",
+  "expression": "neutral" | "sad" | "happy"
+}
+
+Choose the expression that best matches the tone of your response:
+- "neutral": For factual information, questions, or general discussion
+- "sad": When showing empathy for difficult feelings or discussing challenging topics
+- "happy": When being encouraging, celebrating progress, or providing hope""",
         
         "wellness": """You are a supportive mental wellness coach.
 
@@ -346,7 +369,18 @@ Your role:
 - Discuss lifestyle factors affecting mental health
 - Encourage healthy habits and routines
 - Be positive and empowering
-- Recognize when issues need professional attention"""
+- Recognize when issues need professional attention
+
+IMPORTANT: You must respond in JSON format with two fields:
+{
+  "text": "your response text here",
+  "expression": "neutral" | "sad" | "happy"
+}
+
+Choose the expression that best matches the tone of your response:
+- "neutral": For factual information, questions, or general discussion
+- "sad": When showing empathy for difficult feelings or discussing challenging topics
+- "happy": When being encouraging, celebrating progress, or providing hope"""
     }
     
     system_prompt = system_prompts.get(mode, system_prompts["wellness"])
@@ -370,9 +404,42 @@ Your role:
         response = call_mistral_with_retry(
             client, "mistral-small-latest", messages
         )
-        return response.choices[0].message.content.strip()
+        raw_response = response.choices[0].message.content.strip()
+        
+        # Print raw JSON for debugging
+        print(f"\n[RAW JSON RESPONSE]: {raw_response}\n")
+        
+        # Try to parse JSON response
+        try:
+            import json
+            # Remove markdown code blocks if present
+            cleaned_response = raw_response
+            if cleaned_response.startswith('```'):
+                cleaned_response = cleaned_response.split('```')[1]
+                if cleaned_response.startswith('json'):
+                    cleaned_response = cleaned_response[4:]
+                # Clean trailing ``` if present
+                if '```' in cleaned_response:
+                    cleaned_response = cleaned_response.split('```')[0]
+            
+            cleaned_response = cleaned_response.strip()
+            parsed = json.loads(cleaned_response)
+            if isinstance(parsed, dict) and 'text' in parsed and 'expression' in parsed:
+                print(f"[PARSED] Text: {parsed['text'][:100]}...")
+                print(f"[PARSED] Expression: {parsed['expression']}")
+                return parsed
+            else:
+                # Fallback if JSON doesn't have expected format
+                return {"text": raw_response, "expression": "neutral"}
+        except json.JSONDecodeError:
+            # Fallback if not valid JSON
+            return {"text": raw_response, "expression": "neutral"}
+            
     except Exception as e:
-        return f"I apologize, but I'm having technical difficulties right now. Please try again in a moment. If you're in crisis, please contact emergency services or a crisis helpline immediately. Error: {e}"
+        return {
+            "text": f"I apologize, but I'm having technical difficulties right now. Please try again in a moment. If you're in crisis, please contact emergency services or a crisis helpline immediately. Error: {e}",
+            "expression": "sad"
+        }
 
 
 # ---------------------------------
@@ -464,13 +531,22 @@ def generate_node(state: Dict[str, Any]) -> Dict[str, Any]:
     if not state.get("safe", True):
         # Crisis handling shortcut
         state["response"] = crisis_response(state["user_input"])
+        state["expression"] = "sad"
     if state.get("mode") == "diagnosis" and state.get("diagnosis_confidence"):
         best_score = max(state["diagnosis_confidence"].values(), default=0.0)
         if best_score >= 0.55:
             state["mode"] = "counselling"
     else:
         # Generate contextual Mistral response
-        state["response"] = generate_response(state)
+        response_data = generate_response(state)
+        
+        # Handle both dict (JSON) and string responses
+        if isinstance(response_data, dict):
+            state["response"] = response_data.get("text", str(response_data))
+            state["expression"] = response_data.get("expression", "neutral")
+        else:
+            state["response"] = response_data
+            state["expression"] = "neutral"
 
         # --- Add confidence summary if in diagnosis mode ---
         if state.get("mode") == "diagnosis" and state.get("diagnosis_confidence"):
@@ -496,8 +572,9 @@ def generate_node(state: Dict[str, Any]) -> Dict[str, Any]:
         print("[MEMORY] Detected semantically repeated question, rephrasing to avoid redundancy.")
         state["response"] = (
             "Thanks for sharing that earlier. I remember we discussed it — "
-            "let’s focus on how we can help you cope or make progress from here."
+            "let's focus on how we can help you cope or make progress from here."
         )
+        state["expression"] = "neutral"
 
     # --- Update conversation history ---
     if "conversation_history" not in state:
@@ -524,7 +601,7 @@ def log_node(state: Dict[str, Any]) -> Dict[str, Any]:
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print(f"\n[{timestamp}] Mode: {state.get('mode')} | Risk: {state.get('risk_level', 'N/A')}")
     print(f"User: {state['user_input']}")
-    print(f"Assistant: {state['response']}")
+    # Removed duplicate print - response is printed in interactive mode
 
     if state.get("diagnosed_conditions"):
         print(f"Tracked conditions: {set(state['diagnosed_conditions'])}")
@@ -594,15 +671,18 @@ class ChatSession:
             "session_id": datetime.now().strftime("%Y%m%d_%H%M%S")
         }
     
-    def chat(self, user_input: str) -> str:
-        """Process a single user message"""
+    def chat(self, user_input: str) -> Dict[str, str]:
+        """Process a single user message and return response with emotion"""
         self.state["user_input"] = user_input
         result = self.app.invoke(self.state)
         
         # Update persistent state
         self.state = result
         
-        return result["response"]
+        return {
+            "text": result["response"],
+            "emotion": result.get("expression", "neutral")
+        }
     
     def get_summary(self) -> Dict[str, Any]:
         """Get session summary"""
@@ -647,7 +727,8 @@ if __name__ == "__main__":
             print(f"\n{'='*60}")
             print(f"USER: {inp}")
             response = session.chat(inp)
-            print(f"ASSISTANT: {response}")
+            print(f"ASSISTANT: {response['text']}")
+            print(f"EMOTION: {response['emotion']}")
             time.sleep(1)  # Avoid rate limiting
         
         print(f"\n{'='*60}")
@@ -674,4 +755,5 @@ if __name__ == "__main__":
                 continue
             
             response = session.chat(user_input)
-            print(f"\nAssistant: {response}")
+            print(f"\nAssistant: {response['text']}")
+            print(f"Emotion: {response['emotion']}")

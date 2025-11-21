@@ -1,0 +1,77 @@
+.App {
+  width: 100%;
+  min-height: 100vh;
+}
+
+.unity-page {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #282c34;
+  position: relative;
+  overflow: hidden;
+}
+
+.floating-back-button {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  color: white;
+  text-decoration: none;
+  font-size: 1rem;
+  padding: 10px 20px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  z-index: 1000;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.floating-back-button:hover {
+  background: rgba(0, 0, 0, 0.8);
+  transform: translateX(-3px);
+}
+
+.floating-signout-button {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  color: white;
+  font-size: 1rem;
+  padding: 10px 20px;
+  background: rgba(220, 38, 38, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  font-family: inherit;
+}
+
+.floating-signout-button:hover {
+  background: rgba(220, 38, 38, 0.8);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .floating-back-button {
+    font-size: 0.9rem;
+    padding: 8px 16px;
+    top: 10px;
+    left: 10px;
+  }
+
+  .floating-signout-button {
+    font-size: 0.9rem;
+    padding: 8px 16px;
+    top: 10px;
+    right: 10px;
+  }
+}

@@ -1,0 +1,344 @@
+const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const axios = require('axios');
+const { router: authRouter, authenticateToken } = require('./auth');
+const connectDB = require('./config/database');
+const ChatHistory = require('./models/ChatHistory');
+require('dotenv').config();
+
+// Connect to MongoDB
+connectDB();
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// Middleware
+app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Auth routes
+app.use('/api/auth', authRouter);
+
+// Configuration - Update these URLs with your actual API endpoints
+const CHATBOT_API_URL = process.env.CHATBOT_API_URL || 'https://jsonplaceholder.typicode.com/posts';
+const TTS_API_URL = process.env.TTS_API_URL || 'http://localhost:8000/tts'; // Your TTS service
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', message: 'Lumina Backend Server is running' });
+});
+
+// Main endpoint: Receive STT text, process through chatbot, convert to speech
+app.post('/api/process-speech', authenticateToken, async (req, res) => {
+  try {
+    const { transcript, userId, sessionId } = req.body;
+
+    if (!transcript) {
+      return res.status(400).json({ error: 'Transcript is required' });
+    }
+
+    console.log(`[${new Date().toISOString()}] Received transcript:`, transcript);
+
+    // Step 1: Send transcript to chatbot API
+    console.log('Step 1: Sending to chatbot API...');
+    const chatbotResponse = await sendToChatbot(transcript, userId, sessionId);
+    console.log('Chatbot response:', chatbotResponse);
+
+    // Step 2: Save chat history to database
+    console.log('Step 2: Saving chat history...');
+    await saveChatHistory(req.user.id, transcript, chatbotResponse);
+
+    // Step 3: Send chatbot response to TTS API
+    console.log('Step 3: Converting to speech...');
+    const audioBase64 = await convertToSpeech(chatbotResponse);
+    console.log('Audio generated successfully');
+
+    // Step 4: Send response back to frontend
+    res.json({
+      success: true,
+      transcript: transcript,
+      response: chatbotResponse,
+      audio: audioBase64,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Error processing speech:', error.message);
+    res.status(500).json({
+      error: 'Failed to process speech',
+      message: error.message
+    });
+  }
+});
+
+// Function to send transcript to chatbot API
+async function sendToChatbot(transcript, userId = 'default', sessionId = null) {
+  try {
+    // Replace this with your actual chatbot API call
+    const response = await axios.post(CHATBOT_API_URL, {
+      message: transcript,
+      user_id: userId,
+      session_id: sessionId || generateSessionId(),
+      timestamp: new Date().toISOString()
+    }, {
+      timeout: 30000, // 30 second timeout
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    // Extract the response text from your chatbot API
+    // Modify this based on your actual API response structure
+    if (response.data && response.data.text) {
+      return response.data.text;
+    } else {
+      // Dummy response for testing
+      return `The server didn't respond.`;
+    }
+  } catch (error) {
+    console.error('Chatbot API error:', error.message);
+    // Return a fallback response
+    return `I'm sorry, I'm having trouble processing your request right now. You said: "${transcript}"`;
+  }
+}
+
+// Function to convert text to speech and return base64
+async function convertToSpeech(text) {
+  try {
+    // Replace this with your actual TTS API call
+    const response = await axios.post(TTS_API_URL, {
+      text: text,
+      voice: 'default',
+      format: 'mp3'
+    }, {
+      responseType: 'arraybuffer', // Important for binary audio data
+      timeout: 60000, // 60 second timeout for TTS
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    // Convert audio buffer to base64
+    const audioBuffer = Buffer.from(response.data);
+    const audioBase64 = audioBuffer.toString('base64');
+    
+    return `data:audio/mp3;base64,${audioBase64}`;
+  } catch (error) {
+    console.error('TTS API error:', error.message);
+    
+    // If TTS fails, return null or generate a silent audio
+    // For now, return null and let frontend handle it
+    return null;
+  }
+}
+
+// Helper function to generate session ID
+function generateSessionId() {
+  return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+}
+
+// Separate endpoint for TTS only (if needed)
+app.post('/api/text-to-speech', async (req, res) => {
+  try {
+    const { text } = req.body;
+
+    if (!text) {
+      return res.status(400).json({ error: 'Text is required' });
+    }
+
+    const audioBase64 = await convertToSpeech(text);
+
+    if (!audioBase64) {
+      return res.status(500).json({ error: 'Failed to generate audio' });
+    }
+
+    res.json({
+      success: true,
+      audio: audioBase64,
+      text: text
+    });
+  } catch (error) {
+    console.error('TTS error:', error.message);
+    res.status(500).json({
+      error: 'Failed to convert text to speech',
+      message: error.message
+    });
+  }
+});
+
+// Separate endpoint for chatbot only (if needed)
+app.post('/api/chatbot', async (req, res) => {
+  try {
+    const { message, userId, sessionId } = req.body;
+
+    if (!message) {
+      return res.status(400).json({ error: 'Message is required' });
+    }
+
+    const response = await sendToChatbot(message, userId, sessionId);
+
+    res.json({
+      success: true,
+      message: message,
+      response: response,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Chatbot error:', error.message);
+    res.status(500).json({
+      error: 'Failed to get chatbot response',
+      message: error.message
+    });
+  }
+});
+
+// Function to save chat history to database
+async function saveChatHistory(userId, userMessage, assistantResponse) {
+  try {
+    // Find or create chat history for today
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    let chatHistory = await ChatHistory.findOne({
+      userId: userId,
+      createdAt: { $gte: today }
+    });
+
+    if (!chatHistory) {
+      // Create new chat history for today
+      chatHistory = new ChatHistory({
+        userId: userId,
+        messages: []
+      });
+    }
+
+    // Add user message
+    chatHistory.messages.push({
+      role: 'user',
+      content: userMessage,
+      emotion: 'neutral'
+    });
+
+    // Add assistant response (extract emotion if it's JSON)
+    let assistantEmotion = 'neutral';
+    let assistantContent = assistantResponse;
+
+    try {
+      const parsedResponse = JSON.parse(assistantResponse);
+      if (parsedResponse.text && parsedResponse.emotion) {
+        assistantContent = parsedResponse.text;
+        assistantEmotion = parsedResponse.emotion;
+      }
+    } catch (e) {
+      // Not JSON, use as is
+    }
+
+    chatHistory.messages.push({
+      role: 'assistant',
+      content: assistantContent,
+      emotion: assistantEmotion
+    });
+
+    await chatHistory.save();
+    console.log('Chat history saved successfully');
+  } catch (error) {
+    console.error('Error saving chat history:', error.message);
+    // Don't throw - let the conversation continue even if saving fails
+  }
+}
+
+// Get chat history for authenticated user
+app.get('/api/chat-history', authenticateToken, async (req, res) => {
+  try {
+    const { limit = 10, skip = 0 } = req.query;
+
+    const chatHistories = await ChatHistory.find({ userId: req.user.id })
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit))
+      .skip(parseInt(skip));
+
+    res.json({
+      success: true,
+      chatHistories: chatHistories,
+      count: chatHistories.length
+    });
+  } catch (error) {
+    console.error('Error fetching chat history:', error.message);
+    res.status(500).json({
+      error: 'Failed to fetch chat history',
+      message: error.message
+    });
+  }
+});
+
+// Get specific chat session by ID
+app.get('/api/chat-history/:id', authenticateToken, async (req, res) => {
+  try {
+    const chatHistory = await ChatHistory.findOne({
+      _id: req.params.id,
+      userId: req.user.id
+    });
+
+    if (!chatHistory) {
+      return res.status(404).json({ error: 'Chat history not found' });
+    }
+
+    res.json({
+      success: true,
+      chatHistory: chatHistory
+    });
+  } catch (error) {
+    console.error('Error fetching chat history:', error.message);
+    res.status(500).json({
+      error: 'Failed to fetch chat history',
+      message: error.message
+    });
+  }
+});
+
+// Delete chat history by ID
+app.delete('/api/chat-history/:id', authenticateToken, async (req, res) => {
+  try {
+    const result = await ChatHistory.findOneAndDelete({
+      _id: req.params.id,
+      userId: req.user.id
+    });
+
+    if (!result) {
+      return res.status(404).json({ error: 'Chat history not found' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Chat history deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting chat history:', error.message);
+    res.status(500).json({
+      error: 'Failed to delete chat history',
+      message: error.message
+    });
+  }
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({
+    error: 'Internal server error',
+    message: err.message
+  });
+});
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`\n🚀 Lumina Backend Server is running on port ${PORT}`);
+  console.log(`📍 Health check: http://localhost:${PORT}/health`);
+  console.log(`🎤 Speech API: http://localhost:${PORT}/api/process-speech`);
+  console.log(`💬 Chatbot API: http://localhost:${PORT}/api/chatbot`);
+  console.log(`🔊 TTS API: http://localhost:${PORT}/api/text-to-speech\n`);
+});
+
+module.exports = app;

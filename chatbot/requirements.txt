@@ -6,3 +6,5 @@ langchain-tavily
 langchain-community
 faiss-cpu
 sentence-transformers
+flask
+flask-cors
