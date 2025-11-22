@@ -1,6 +1,5 @@
 import io
 import base64
-import json
 from typing import Dict
 from PIL import Image
 from flask import Flask, request, jsonify

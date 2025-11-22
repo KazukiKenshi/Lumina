@@ -1169,3 +1169,60 @@ Available endpoints:
 [2025-11-22 19:39:25] Mode: counselling | Risk: N/A
 User: [neutral face] i was saying hello
 127.0.0.1 - - [22/Nov/2025 19:39:25] "POST /api/chat HTTP/1.1" 200 -
+C:\Users\hites\Documents\Lumina\chatbot\rag_store.py:15: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-huggingface package and should be used instead. To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.
+  self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+[RAG] Loaded tags for categories: ['diagnosis', 'counselling', 'wellness']
+✅ Saved vector store for diagnosis with 12 chunks
+✅ Saved vector store for counselling with 19 chunks
+✅ Saved vector store for wellness with 14 chunks
+INFO:waitress:Serving on http://0.0.0.0:5001
+[DB DEBUG] get_recent_exchanges called with n=4, user_id=hiteshd258@gmail.com
+[DB INFO] Loaded 4 recent exchanges for user hiteshd258@gmail.com from latest chat history.
+[API] Created new session: 20251122_213511 for user: hiteshd258@gmail.com
+[API] Processing message from user: hiteshd258@gmail.com
+[API] Message: [neutral face] hi
+[MODE] DIAGNOSIS (confidence: 0.19)
+[RETRIEVE] mode=diagnosis k=3 tags=[]
+
+[RAW JSON RESPONSE]: ```json
+{
+  "text": "Hello again! It's good to see you. How can I assist you today? If you're comfortable, you can share what's been on your mind, and we can explore it together.",
+  "expression": "neutral"
+}
+```
+
+[PARSED] Text: Hello again! It's good to see you. How can I assist you today? If you're comfortable, you can share ...
+[PARSED] Expression: neutral
+
+[2025-11-22 21:35:15] Mode: diagnosis | Risk: N/A
+User: [neutral face] hi
+INFO:lumina_chatbot:-----
+Session: 20251122_213511
+Timestamp: 2025-11-22 21:35:15
+Mode: diagnosis | Risk: N/A
+User: [neutral face] hi
+Assistant: Hello again! It's good to see you. How can I assist you today? If you're comfortable, you can share what's been on your mind, and we can explore it together.
+[API] Using existing session: 20251122_213511
+[API] Processing message from user: hiteshd258@gmail.com
+[API] Message: [sad face] nothing just wanted to chat
+[MODE] DIAGNOSIS (confidence: 0.33)
+[RETRIEVE] mode=diagnosis k=3 tags=[]
+
+[RAW JSON RESPONSE]: ```json
+{
+  "text": "I'm here to chat whenever you need. If you're feeling down or just want to talk about what's on your mind, I'm happy to listen. Sometimes sharing can help, even if it's just a little bit. How have you been feeling lately?",
+  "expression": "sad"
+}
+```
+
+[PARSED] Text: I'm here to chat whenever you need. If you're feeling down or just want to talk about what's on your...
+[PARSED] Expression: sad
+
+[2025-11-22 21:36:49] Mode: diagnosis | Risk: N/A
+User: [sad face] nothing just wanted to chat
+INFO:lumina_chatbot:-----
+Session: 20251122_213511
+Timestamp: 2025-11-22 21:36:49
+Mode: diagnosis | Risk: N/A
+User: [sad face] nothing just wanted to chat
+Assistant: I'm here to chat whenever you need. If you're feeling down or just want to talk about what's on your mind, I'm happy to listen. Sometimes sharing can help, even if it's just a little bit. How have you been feeling lately?

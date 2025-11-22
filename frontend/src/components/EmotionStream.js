@@ -9,7 +9,6 @@ const EmotionStream = ({ intervalMs = 2000, enabled = true }) => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [permission, setPermission] = useState(null); // null=unknown, true/false
-  const [emotion, setEmotion] = useState('neutral');
   const [error, setError] = useState(null);
   const [running, setRunning] = useState(false);
   const { token } = useAuth();
@@ -70,8 +69,7 @@ const EmotionStream = ({ intervalMs = 2000, enabled = true }) => {
       if (token) headers['Authorization'] = `Bearer ${token}`;
       const resp = await axios.post('http://localhost:5000/api/emotion-frame', { image_base64 }, { headers });
       const em = resp.data.emotion || 'neutral';
-      setEmotion(em);
-      // Store frame in context window
+      // Store frame in context window (no UI display)
       addFrame(em, resp.data.probabilities || null);
         // NOTE: Unity expression triggers disabled per requirement; only chatbot responses drive expressions.
     } catch (err) {
@@ -79,17 +77,11 @@ const EmotionStream = ({ intervalMs = 2000, enabled = true }) => {
     }
   };
 
+  // Do not render any visible UI; keep hidden video/canvas for capture
   return (
-    <div style={{ position: 'fixed', bottom: '110px', right: '12px', zIndex: 50, fontSize: '12px', fontFamily: 'sans-serif', background: 'rgba(0,0,0,0.5)', color: '#fff', padding: '6px 8px', borderRadius: '6px' }}>
-      <div style={{ marginBottom: '4px' }}>
-        {permission === null && 'Requesting webcam...'}
-        {permission === false && 'Webcam blocked'}
-        {permission === true && `Webcam active (${intervalMs/1000}s)`}
-      </div>
-      <div>Live emotion: <strong style={{ color: emotion === 'happy' ? '#ffd76b' : emotion === 'sad' ? '#7fb0ff' : '#ccc' }}>{emotion}</strong></div>
-      {error && <div style={{ color: '#ff8080' }}>{error}</div>}
-      <video ref={videoRef} style={{ display: 'none' }} muted playsInline />
-      <canvas ref={canvasRef} style={{ display: 'none' }} />
+    <div style={{ display: 'none' }}>
+      <video ref={videoRef} muted playsInline />
+      <canvas ref={canvasRef} />
     </div>
   );
 };

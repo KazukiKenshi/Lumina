@@ -1,0 +1,36 @@
+# Unity WebGL Build Files for Production
+
+For production deployment, you must serve the Unity WebGL files with correct filenames and Content-Encoding headers.
+
+## Required files in this folder:
+- build.loader.js
+- build.framework.js
+- build.data
+- build.wasm
+- (optionally) their .br precompressed versions for Brotli
+
+## Production server setup:
+- If using Nginx, Apache, or similar, configure the server to serve .js, .wasm, .data files with `Content-Encoding: br` if the `.br` version exists and the client supports Brotli.
+- If you use a static host (Netlify, Vercel, S3, etc.), upload both compressed and uncompressed files, and set headers as needed.
+- For local development, decompress .br files to their original names (see decompress_build.js script).
+
+## Example Nginx config:
+```
+location /Build/ {
+    add_header Content-Encoding br;
+    try_files $uri $uri.br =404;
+}
+```
+
+## React build:
+- Ensure the Build folder is present in `public/` before running `npm run build`.
+- The React build will copy all files from `public/` to `build/`.
+- After build, deploy the contents of `build/` to your production server.
+
+## UnityPlayer.js
+- The loader expects files at `/Build/build.loader.js`, `/Build/build.framework.js`, `/Build/build.data`, `/Build/build.wasm`.
+- If you see `Unexpected token '<'`, the file is missing or being served as HTML (check your server config).
+
+## Summary
+- For production: serve both compressed and uncompressed files, set Content-Encoding headers, and ensure correct filenames.
+- For development: decompress .br files to their original names.

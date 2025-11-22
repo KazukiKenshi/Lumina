@@ -127,16 +127,6 @@ const UnityPlayer = () => {
     }
   };
 
-  const triggerExpression = (expression) => {
-    if(expression == 'happy') sendToUnity('ReactBridge', 'TriggerHappy', "");
-    else if(expression == 'neutral') sendToUnity('ReactBridge', 'TriggerNeutral', "");
-    else if(expression == 'sad') sendToUnity('ReactBridge', 'TriggerSad', "");
-  };
-
-  const toggleTalking = (isTalking) => {
-    sendToUnity('ReactBridge', 'SetBool', isTalking ? 'true' : 'false');
-  };
-
   return (
     <div className="unity-container">
       <canvas 
