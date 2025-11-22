@@ -5,6 +5,7 @@ const axios = require('axios');
 const { router: authRouter, authenticateToken } = require('./auth');
 const connectDB = require('./config/database');
 const ChatHistory = require('./models/ChatHistory');
+const { Client } = require('@gradio/client');
 require('dotenv').config();
 
 // Connect to MongoDB
@@ -23,7 +24,7 @@ app.use('/api/auth', authRouter);
 
 // Configuration - Update these URLs with your actual API endpoints
 const CHATBOT_API_URL = process.env.CHATBOT_API_URL || 'https://jsonplaceholder.typicode.com/posts';
-const TTS_API_URL = process.env.TTS_API_URL || 'http://localhost:8000/tts'; // Your TTS service
+// const TTS_API_URL = process.env.TTS_API_URL || 'http://localhost:8000/tts'; // Your TTS service
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -48,19 +49,24 @@ app.post('/api/process-speech', authenticateToken, async (req, res) => {
 
     // Step 2: Save chat history to database
     console.log('Step 2: Saving chat history...');
-    await saveChatHistory(req.user.id, transcript, chatbotResponse);
+    // Normalize to JSON string with text + emotion for persistence and TTS
+    const normalizedEmotion = (chatbotResponse && chatbotResponse.expression) ? String(chatbotResponse.expression).toLowerCase() : 'neutral';
+    const assistantPayload = JSON.stringify({ text: chatbotResponse?.text || String(chatbotResponse || ''), emotion: normalizedEmotion });
+    await saveChatHistory(req.user.id, transcript, assistantPayload);
 
     // Step 3: Send chatbot response to TTS API
     console.log('Step 3: Converting to speech...');
-    const audioBase64 = await convertToSpeech(chatbotResponse);
+    const audioBase64 = await convertToSpeech(assistantPayload);
     console.log('Audio generated successfully');
 
     // Step 4: Send response back to frontend
     res.json({
       success: true,
       transcript: transcript,
-      response: chatbotResponse,
+      response: chatbotResponse?.text || String(chatbotResponse || ''),
+      emotion: normalizedEmotion,
       audio: audioBase64,
+      sessionId: chatbotResponse?.sessionId || sessionId || null,
       timestamp: new Date().toISOString()
     });
 
@@ -89,42 +95,72 @@ async function sendToChatbot(transcript, userId = 'default', sessionId = null) {
       }
     });
 
-    // Extract the response text from your chatbot API
-    // Modify this based on your actual API response structure
-    if (response.data && response.data.text) {
-      return response.data.text;
-    } else {
-      // Dummy response for testing
-      return `The server didn't respond.`;
-    }
+    // Extract fields from chatbot API; fallbacks for different schemas
+    const data = response.data || {};
+    const text = data.text || data.response || data.message || data.content || `The server didn't respond.`;
+    const expression = (data.expression || data.emotion || data.mood || 'neutral');
+    const out = {
+      text: typeof text === 'string' ? text : JSON.stringify(text),
+      expression: typeof expression === 'string' ? expression : String(expression),
+      sessionId: data.sessionId || data.session_id || null
+    };
+    return out;
   } catch (error) {
     console.error('Chatbot API error:', error.message);
-    // Return a fallback response
-    return `I'm sorry, I'm having trouble processing your request right now. You said: "${transcript}"`;
+    // Return a fallback structured response
+    return {
+      text: `I'm sorry, I'm having trouble processing your request right now. You said: "${transcript}"`,
+      expression: 'neutral',
+      sessionId: sessionId || null
+    };
   }
 }
 
 // Function to convert text to speech and return base64
 async function convertToSpeech(text) {
   try {
-    // Replace this with your actual TTS API call
-    const response = await axios.post(TTS_API_URL, {
-      text: text,
-      voice: 'default',
-      format: 'mp3'
-    }, {
-      responseType: 'arraybuffer', // Important for binary audio data
-      timeout: 60000, // 60 second timeout for TTS
-      headers: {
-        'Content-Type': 'application/json'
+    // Extract emotion if text is JSON
+    let promptText = text;
+    let emotion = 'neutral';
+    
+    try {
+      const parsedText = JSON.parse(text);
+      if (parsedText.text && parsedText.emotion) {
+        promptText = parsedText.text;
+        emotion = parsedText.emotion;
       }
+    } catch (e) {
+      // Not JSON, use as is
+    }
+
+    // Connect to Gradio TTS client
+    const client = await Client.connect("NihalGazi/Text-To-Speech-Unlimited");
+    const result = await client.predict("/text_to_speech_app", {
+      prompt: promptText,
+      voice: "sage",
+      emotion: emotion,
+      use_random_seed: true,
+      specific_seed: 3
     });
 
-    // Convert audio buffer to base64
-    const audioBuffer = Buffer.from(response.data);
-    const audioBase64 = audioBuffer.toString('base64');
+    console.log('Gradio TTS result:', result.data);
+
+    // Check if we got audio data back
+    if (result.data && result.data[0]) {
+      const audioUrl = result.data[0].url;
+      
+      // Fetch the audio file and convert to base64
+      const audioResponse = await axios.get(audioUrl, {
+        responseType: 'arraybuffer'
+      });
+      
+      const audioBuffer = Buffer.from(audioResponse.data);
+      const audioBase64 = audioBuffer.toString('base64');
+      
+      return `data:audio/wav;base64,${audioBase64}`;
+    }
     
-    return `data:audio/mp3;base64,${audioBase64}`;
+    return null;
   } catch (error) {
     console.error('TTS API error:', error.message);
     

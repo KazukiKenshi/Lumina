@@ -57,8 +57,9 @@
 
 .mic-button,
 .send-button {
-  background: #222222;
-  border: 1px solid #444444;
+  background: linear-gradient(145deg, #2b6cb0, #1a365d);
+  border: 1px solid #4fd1c5;
+  color: #ffffff; /* ensure icon/text visible */
   border-radius: 50%;
   width: 44px;
   height: 44px;
@@ -67,14 +68,17 @@
   justify-content: center;
   cursor: pointer;
   font-size: 1.3rem;
-  transition: all 0.3s ease;
+  font-weight: 600;
+  transition: all 0.25s ease;
   flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
 }
 
 .mic-button:hover,
 .send-button:hover {
-  background: #333333;
-  transform: scale(1.05);
+  background: linear-gradient(145deg, #2b6cb0, #2c5282);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.7);
 }
 
 .mic-button:active,
@@ -90,9 +94,11 @@
 }
 
 .mic-button.recording {
-  background: #ff0000;
-  border-color: #ff0000;
+  background: linear-gradient(145deg, #ff4d4d, #c90000);
+  border-color: #ff4d4d;
+  color: #ffffff;
   animation: pulse-recording 1.5s ease-in-out infinite;
+  box-shadow: 0 0 0 4px rgba(255,0,0,0.25), 0 6px 18px rgba(0,0,0,0.7);
 }
 
 @keyframes pulse-recording {
@@ -105,17 +111,46 @@
 }
 
 .send-button {
-  background: #1a1a1a;
-  border-color: #555555;
+  background: linear-gradient(145deg, #2b6cb0, #1a365d);
+  border-color: #4fd1c5;
+  color: #ffffff;
 }
 
 .send-button:hover:not(:disabled) {
-  background: #2a2a2a;
-  border-color: #666666;
+  background: linear-gradient(145deg, #2c5282, #2b6cb0);
+  border-color: #6ee7e7;
 }
 
 .send-button:disabled {
-  opacity: 0.3;
+  opacity: 0.4;
+  background: #1f334d;
+  border-color: #2c4b6d;
+  color: #88a4c2;
+}
+
+/* Spinner for send button while processing */
+.send-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: send-spin 0.8s linear infinite;
+}
+
+@keyframes send-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Keep send button highlighted during processing even if disabled */
+.send-button.processing,
+.send-button.processing:disabled {
+  opacity: 1;
+  background: linear-gradient(145deg, #2c5282, #2b6cb0);
+  border-color: #6ee7e7;
+  color: #ffffff;
+  cursor: progress;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.7);
 }
 
 /* Mobile responsive */

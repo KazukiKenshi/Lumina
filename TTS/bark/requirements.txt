@@ -1,7 +1,0 @@
-torch
-torchaudio
-transformers
-bark
-gradio
-ffmpeg-python
-numpy

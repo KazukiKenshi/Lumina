@@ -8,6 +8,8 @@ import Register from './components/Register';
 import PrivateRoute from './components/PrivateRoute';
 import UnityPlayer from './components/UnityPlayer';
 import ChatInput from './components/ChatInput';
+import ChatOverlay from './components/ChatOverlay';
+import { ChatProvider } from './contexts/ChatContext';
 
 function App() {
   console.log('📱 App component is rendering');
@@ -21,7 +23,9 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/play" element={
               <PrivateRoute>
-                <UnityPage />
+                <ChatProvider>
+                  <UnityPage />
+                </ChatProvider>
               </PrivateRoute>
             } />
           </Routes>
@@ -47,6 +51,7 @@ function UnityPage() {
       <button onClick={handleSignOut} className="floating-signout-button">
         Sign Out
       </button>
+      <ChatOverlay />
       <ChatInput />
       <UnityPlayer />
     </div>

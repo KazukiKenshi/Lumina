@@ -165,56 +165,7 @@ const UnityPlayer = () => {
         </div>
       )}
 
-      {isLoaded && (
-        <div className="unity-controls">
-          <div className="control-group">
-            <div className="control-label">Expression Triggers:</div>
-            <div className="button-group">
-              <button 
-                className="control-button happy"
-                onClick={() => triggerExpression('happy')}
-                title="Trigger Happy Expression"
-              >
-                😊 Happy
-              </button>
-              <button 
-                className="control-button neutral"
-                onClick={() => triggerExpression('neutral')}
-                title="Trigger Neutral Expression"
-              >
-                😐 Neutral
-              </button>
-              <button 
-                className="control-button sad"
-                onClick={() => triggerExpression('sad')}
-                title="Trigger Sad Expression"
-              >
-                😢 Sad
-              </button>
-            </div>
-          </div>
-          
-          <div className="control-group">
-            <div className="control-label">Talking State:</div>
-            <div className="button-group">
-              <button 
-                className="control-button talking-on"
-                onClick={() => toggleTalking(true)}
-                title="Start Talking"
-              >
-                🗣️ Start Talking
-              </button>
-              <button 
-                className="control-button talking-off"
-                onClick={() => toggleTalking(false)}
-                title="Stop Talking"
-              >
-                🤐 Stop Talking
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Expression/Talking controls removed per request */}
     </div>
   );
 };
