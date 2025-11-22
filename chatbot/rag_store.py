@@ -1,5 +1,4 @@
 import os
-import json
 import re
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import HuggingFaceEmbeddings

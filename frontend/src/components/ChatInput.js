@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
+// Add import for user context
+import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 import { unityInstance } from './UnityPlayer';
 import { useChat } from '../contexts/ChatContext';
@@ -6,6 +8,7 @@ import './ChatInput.css';
 import { useEmotion } from '../contexts/EmotionContext';
 
 const ChatInput = () => {
+    const { user } = useAuth(); // Assumes user object has an 'email' property
     const [inputText, setInputText] = useState('');
     const [isRecording, setIsRecording] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -88,7 +91,7 @@ const ChatInput = () => {
             const response = await axios.post('http://localhost:5000/api/process-speech', {
                 transcript: textToSend,
                 timestamp: new Date().toISOString(),
-                userId: 'user123',
+                userId: user?.email || 'anonymous',
                 sessionId: sessionStorage.getItem('sessionId') || null,
                 emotionContext
             });

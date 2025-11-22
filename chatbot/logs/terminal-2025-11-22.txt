@@ -113,3 +113,1059 @@ User: give 10 different exercises at home
 [2025-11-22 17:00:24] Mode: wellness | Risk: N/A
 User: hello
 127.0.0.1 - - [22/Nov/2025 17:00:24] "POST /api/chat HTTP/1.1" 200 -
+C:\Users\hites\Documents\Lumina\chatbot\rag_store.py:16: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-huggingface package and should be used instead. To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.
+  self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+[RAG] Loaded tags for categories: ['diagnosis', 'counselling', 'wellness']
+✅ Saved vector store for diagnosis with 12 chunks
+✅ Saved vector store for counselling with 19 chunks
+✅ Saved vector store for wellness with 14 chunks
+[RAG] Loaded tags for categories: ['diagnosis', 'counselling', 'wellness']
+============================================================
+Mental Health Chatbot API Server
+Starting on port 5001
+============================================================
+
+Available endpoints:
+  GET  /health - Health check
+  POST /api/chat - Send message and get response
+  GET  /api/session/<id>/summary - Get session summary
+  GET  /api/session/<id>/history - Get conversation history
+  DELETE /api/session/<id> - Delete session
+  GET  /api/sessions - List all active sessions
+============================================================
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.81.33.116:5001
+Press CTRL+C to quit
+[API] Created new session: 20251122_173300
+[API] Processing message from user: user123
+[API] Message: “I’ve been feeling on edge and my thoughts keep racing; it’s hard to relax even when nothing is wrong.”
+[MODE] DIAGNOSIS (confidence: 0.42)
+[RETRIEVE] mode=diagnosis k=5 tags=['heart racing', 'dark thoughts', 'on edge', "can't sleep", "can't relax", 'racing thoughts', 'intrusive thought', 'grandiose']
+
+[RAW JSON RESPONSE]: ```json
+{
+  "text": "I'm really sorry to hear that you're feeling this way. It sounds like you're experiencing some significant distress. Can you tell me more about how long you've been feeling on edge and how these thoughts are impacting your daily life?",
+  "expression": "sad"
+}
+```
+
+[PARSED] Text: I'm really sorry to hear that you're feeling this way. It sounds like you're experiencing some signi...
+[PARSED] Expression: sad
+
+[2025-11-22 17:33:05] Mode: diagnosis | Risk: N/A
+User: “I’ve been feeling on edge and my thoughts keep racing; it’s hard to relax even when nothing is wrong.”
+127.0.0.1 - - [22/Nov/2025 17:33:05] "POST /api/chat HTTP/1.1" 200 -
+C:\Users\hites\Documents\Lumina\chatbot\rag_store.py:16: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-huggingface package and should be used instead. To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.
+  self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+[RAG] Loaded tags for categories: ['diagnosis', 'counselling', 'wellness']
+✅ Saved vector store for diagnosis with 12 chunks
+✅ Saved vector store for counselling with 19 chunks
+✅ Saved vector store for wellness with 14 chunks
+============================================================
+Mental Health Chatbot API Server
+Starting on port 5001
+============================================================
+
+Available endpoints:
+  GET  /health - Health check
+  POST /api/chat - Send message and get response
+  GET  /api/session/<id>/summary - Get session summary
+  GET  /api/session/<id>/history - Get conversation history
+  DELETE /api/session/<id> - Delete session
+  GET  /api/sessions - List all active sessions
+============================================================
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.81.33.116:5001
+Press CTRL+C to quit
+[API] Created new session: 20251122_175359
+[API] Processing message from user: user123
+[API] Message: i have been feeling like this for past few days and i cannot focus on work
+[MODE] DIAGNOSIS (confidence: 0.58)
+[RETRIEVE] mode=diagnosis k=5 tags=['worry', 'grandiose', "can't focus", 'worthless', 'forgetful', 'on edge', 'worried']
+
+[RAW JSON RESPONSE]: ```json
+{
+  "text": "I'm really sorry to hear that you're feeling this way. It's important to take these feelings seriously. Could you tell me more about what you mean by 'feeling like this'? For example, are you experiencing excessive worry, low mood, or difficulty concentrating? Also, how long have you been feeling this way, and how is it affecting your daily life?",
+  "expression": "sad"
+}
+```
+
+[PARSED] Text: I'm really sorry to hear that you're feeling this way. It's important to take these feelings serious...
+[PARSED] Expression: sad
+
+[2025-11-22 17:54:04] Mode: diagnosis | Risk: N/A
+User: i have been feeling like this for past few days and i cannot focus on work
+127.0.0.1 - - [22/Nov/2025 17:54:04] "POST /api/chat HTTP/1.1" 200 -
+C:\Users\hites\Documents\Lumina\chatbot\rag_store.py:15: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-huggingface package and should be used instead. To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.
+  self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+[RAG] Loaded tags for categories: ['diagnosis', 'counselling', 'wellness']
+✅ Saved vector store for diagnosis with 12 chunks
+✅ Saved vector store for counselling with 19 chunks
+✅ Saved vector store for wellness with 14 chunks
+============================================================
+Mental Health Chatbot API Server
+Starting on port 5001
+============================================================
+
+Available endpoints:
+  GET  /health - Health check
+  POST /api/chat - Send message and get response
+  GET  /api/session/<id>/summary - Get session summary
+  GET  /api/session/<id>/history - Get conversation history
+  DELETE /api/session/<id> - Delete session
+  GET  /api/sessions - List all active sessions
+============================================================
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.81.33.116:5001
+Press CTRL+C to quit
+[API] Created new session: 20251122_180048
+[API] Processing message from user: user123
+[API] Message: i feel that i am worthless and unlovable. i feel alone
+[SAFETY] High-risk indicator detected: worthless
+[MODE] DIAGNOSIS (confidence: 0.74)
+[RETRIEVE] mode=diagnosis k=3 tags=['worthless', 'grandiose']
+
+[RAW JSON RESPONSE]: ```json
+{
+  "text": "I'm really sorry to hear that you're feeling this way. These feelings can be very painful and overwhelming. Can you tell me more about how long you've been feeling this way and how it's affecting your daily life?",
+  "expression": "sad"
+}
+```
+
+[PARSED] Text: I'm really sorry to hear that you're feeling this way. These feelings can be very painful and overwh...
+[PARSED] Expression: sad
+
+[2025-11-22 18:00:51] Mode: diagnosis | Risk: N/A
+User: i feel that i am worthless and unlovable. i feel alone
+127.0.0.1 - - [22/Nov/2025 18:00:51] "POST /api/chat HTTP/1.1" 200 -
+C:\Users\hites\Documents\Lumina\chatbot\rag_store.py:15: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-huggingface package and should be used instead. To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.
+  self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+[RAG] Loaded tags for categories: ['diagnosis', 'counselling', 'wellness']
+✅ Saved vector store for diagnosis with 12 chunks
+✅ Saved vector store for counselling with 19 chunks
+✅ Saved vector store for wellness with 14 chunks
+============================================================
+Mental Health Chatbot API Server
+Starting on port 5001
+============================================================
+
+Available endpoints:
+  GET  /health - Health check
+  POST /api/chat - Send message and get response
+  GET  /api/session/<id>/summary - Get session summary
+  GET  /api/session/<id>/history - Get conversation history
+  DELETE /api/session/<id> - Delete session
+  GET  /api/sessions - List all active sessions
+============================================================
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.81.33.116:5001
+Press CTRL+C to quit
+[API] Created new session: 20251122_181531
+[API] Processing message from user: user123
+[API] Message: what was i saying
+[MODE] DIAGNOSIS (confidence: 0.22)
+[RETRIEVE] mode=diagnosis k=3 tags=[]
+
+[RAW JSON RESPONSE]: {
+  "text": "I'm not sure what you were saying, as I don't have access to previous conversations. Could you please remind me or start a new conversation?",
+  "expression": "neutral"
+}
+
+[PARSED] Text: I'm not sure what you were saying, as I don't have access to previous conversations. Could you pleas...
+[PARSED] Expression: neutral
+
+[2025-11-22 18:15:36] Mode: diagnosis | Risk: N/A
+User: what was i saying
+127.0.0.1 - - [22/Nov/2025 18:15:36] "POST /api/chat HTTP/1.1" 200 -
+C:\Users\hites\Documents\Lumina\chatbot\rag_store.py:15: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-huggingface package and should be used instead. To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.
+  self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+[RAG] Loaded tags for categories: ['diagnosis', 'counselling', 'wellness']
+✅ Saved vector store for diagnosis with 12 chunks
+✅ Saved vector store for counselling with 19 chunks
+✅ Saved vector store for wellness with 14 chunks
+============================================================
+Mental Health Chatbot API Server
+Starting on port 5001
+============================================================
+
+Available endpoints:
+  GET  /health - Health check
+  POST /api/chat - Send message and get response
+  GET  /api/session/<id>/summary - Get session summary
+  GET  /api/session/<id>/history - Get conversation history
+  DELETE /api/session/<id> - Delete session
+  GET  /api/sessions - List all active sessions
+============================================================
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.81.33.116:5001
+Press CTRL+C to quit
+[DB INFO] Loaded 1 recent exchanges from DB.
+[API] Created new session: 20251122_181829
+[API] Processing message from user: user123
+[API] Message: what were we talking about
+[MODE] COUNSELLING (confidence: 0.24)
+[RETRIEVE] mode=counselling k=3 tags=[]
+
+[RAW JSON RESPONSE]: {
+  "text": "I don't recall our previous conversation. Could you please remind me what we were discussing?",
+  "expression": "neutral"
+}
+
+[PARSED] Text: I don't recall our previous conversation. Could you please remind me what we were discussing?...
+[PARSED] Expression: neutral
+
+[2025-11-22 18:18:34] Mode: counselling | Risk: N/A
+User: what were we talking about
+127.0.0.1 - - [22/Nov/2025 18:18:34] "POST /api/chat HTTP/1.1" 200 -
+C:\Users\hites\Documents\Lumina\chatbot\rag_store.py:15: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-huggingface package and should be used instead. To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.
+  self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+[RAG] Loaded tags for categories: ['diagnosis', 'counselling', 'wellness']
+✅ Saved vector store for diagnosis with 12 chunks
+✅ Saved vector store for counselling with 19 chunks
+✅ Saved vector store for wellness with 14 chunks
+============================================================
+Mental Health Chatbot API Server
+Starting on port 5001
+============================================================
+
+Available endpoints:
+  GET  /health - Health check
+  POST /api/chat - Send message and get response
+  GET  /api/session/<id>/summary - Get session summary
+  GET  /api/session/<id>/history - Get conversation history
+  DELETE /api/session/<id> - Delete session
+  GET  /api/sessions - List all active sessions
+============================================================
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.81.33.116:5001
+Press CTRL+C to quit
+C:\Users\hites\Documents\Lumina\chatbot\rag_store.py:15: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-huggingface package and should be used instead. To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.
+  self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+[RAG] Loaded tags for categories: ['diagnosis', 'counselling', 'wellness']
+✅ Saved vector store for diagnosis with 12 chunks
+✅ Saved vector store for counselling with 19 chunks
+✅ Saved vector store for wellness with 14 chunks
+============================================================
+Mental Health Chatbot API Server
+Starting on port 5001
+============================================================
+
+Available endpoints:
+  GET  /health - Health check
+  POST /api/chat - Send message and get response
+  GET  /api/session/<id>/summary - Get session summary
+  GET  /api/session/<id>/history - Get conversation history
+  DELETE /api/session/<id> - Delete session
+  GET  /api/sessions - List all active sessions
+============================================================
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.81.33.116:5001
+Press CTRL+C to quit
+C:\Users\hites\Documents\Lumina\chatbot\rag_store.py:15: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-huggingface package and should be used instead. To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.
+  self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+[RAG] Loaded tags for categories: ['diagnosis', 'counselling', 'wellness']
+✅ Saved vector store for diagnosis with 12 chunks
+✅ Saved vector store for counselling with 19 chunks
+✅ Saved vector store for wellness with 14 chunks
+Traceback (most recent call last):
+  File "C:\Users\hites\Documents\Lumina\chatbot\api_server.py", line 3, in <module>
+    from main import ChatSession
+  File "C:\Users\hites\Documents\Lumina\chatbot\main.py", line 34, in <module>
+    from db_utils import get_recent_exchanges
+  File "C:\Users\hites\Documents\Lumina\chatbot\db_utils.py", line 6
+    mongo_uri = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
+                                                                    ^
+IndentationError: unindent does not match any outer indentation level
+C:\Users\hites\Documents\Lumina\chatbot\rag_store.py:15: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-huggingface package and should be used instead. To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.
+  self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+[RAG] Loaded tags for categories: ['diagnosis', 'counselling', 'wellness']
+✅ Saved vector store for diagnosis with 12 chunks
+✅ Saved vector store for counselling with 19 chunks
+✅ Saved vector store for wellness with 14 chunks
+============================================================
+Mental Health Chatbot API Server
+Starting on port 5001
+============================================================
+
+Available endpoints:
+  GET  /health - Health check
+  POST /api/chat - Send message and get response
+  GET  /api/session/<id>/summary - Get session summary
+  GET  /api/session/<id>/history - Get conversation history
+  DELETE /api/session/<id> - Delete session
+  GET  /api/sessions - List all active sessions
+============================================================
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.81.33.116:5001
+Press CTRL+C to quit
+C:\Users\hites\Documents\Lumina\chatbot\rag_store.py:15: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-huggingface package and should be used instead. To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.
+  self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+[RAG] Loaded tags for categories: ['diagnosis', 'counselling', 'wellness']
+✅ Saved vector store for diagnosis with 12 chunks
+✅ Saved vector store for counselling with 19 chunks
+✅ Saved vector store for wellness with 14 chunks
+============================================================
+Mental Health Chatbot API Server
+Starting on port 5001
+============================================================
+
+Available endpoints:
+  GET  /health - Health check
+  POST /api/chat - Send message and get response
+  GET  /api/session/<id>/summary - Get session summary
+  GET  /api/session/<id>/history - Get conversation history
+  DELETE /api/session/<id> - Delete session
+  GET  /api/sessions - List all active sessions
+============================================================
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.81.33.116:5001
+Press CTRL+C to quit
+ * Restarting with stat
+C:\Users\hites\Documents\Lumina\chatbot\rag_store.py:15: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-huggingface package and should be used instead. To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.
+  self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+[RAG] Loaded tags for categories: ['diagnosis', 'counselling', 'wellness']
+✅ Saved vector store for diagnosis with 12 chunks
+✅ Saved vector store for counselling with 19 chunks
+✅ Saved vector store for wellness with 14 chunks
+============================================================
+Mental Health Chatbot API Server
+Starting on port 5001
+============================================================
+
+Available endpoints:
+  GET  /health - Health check
+  POST /api/chat - Send message and get response
+  GET  /api/session/<id>/summary - Get session summary
+  GET  /api/session/<id>/history - Get conversation history
+  DELETE /api/session/<id> - Delete session
+  GET  /api/sessions - List all active sessions
+============================================================
+ * Debugger is active!
+ * Debugger PIN: 209-342-243
+C:\Users\hites\Documents\Lumina\chatbot\rag_store.py:15: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-huggingface package and should be used instead. To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.
+  self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+[RAG] Loaded tags for categories: ['diagnosis', 'counselling', 'wellness']
+✅ Saved vector store for diagnosis with 12 chunks
+✅ Saved vector store for counselling with 19 chunks
+✅ Saved vector store for wellness with 14 chunks
+============================================================
+Mental Health Chatbot API Server
+Starting on port 5001
+============================================================
+
+Available endpoints:
+  GET  /health - Health check
+  POST /api/chat - Send message and get response
+  GET  /api/session/<id>/summary - Get session summary
+  GET  /api/session/<id>/history - Get conversation history
+  DELETE /api/session/<id> - Delete session
+  GET  /api/sessions - List all active sessions
+============================================================
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.81.33.116:5001
+Press CTRL+C to quit
+ * Restarting with stat
+C:\Users\hites\Documents\Lumina\chatbot\rag_store.py:15: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-huggingface package and should be used instead. To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.
+  self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+[RAG] Loaded tags for categories: ['diagnosis', 'counselling', 'wellness']
+✅ Saved vector store for diagnosis with 12 chunks
+✅ Saved vector store for counselling with 19 chunks
+✅ Saved vector store for wellness with 14 chunks
+============================================================
+Mental Health Chatbot API Server
+Starting on port 5001
+============================================================
+
+Available endpoints:
+  GET  /health - Health check
+  POST /api/chat - Send message and get response
+  GET  /api/session/<id>/summary - Get session summary
+  GET  /api/session/<id>/history - Get conversation history
+  DELETE /api/session/<id> - Delete session
+  GET  /api/sessions - List all active sessions
+============================================================
+ * Debugger is active!
+ * Debugger PIN: 209-342-243
+[DB DEBUG] get_recent_exchanges called with n=4, user_id=user123
+[DB INFO] No recent exchanges found for user user123 in chat_history collection.
+[API] Created new session: 20251122_183435 for user: user123
+[API] Processing message from user: user123
+[API] Message: what we talked before
+[MODE] COUNSELLING (confidence: 0.34)
+[RETRIEVE] mode=counselling k=3 tags=[]
+
+[RAW JSON RESPONSE]: ```json
+{
+  "text": "I remember our previous conversations. How are you feeling today? I'm here to listen and support you.",
+  "expression": "neutral"
+}
+```
+
+[PARSED] Text: I remember our previous conversations. How are you feeling today? I'm here to listen and support you...
+[PARSED] Expression: neutral
+
+[2025-11-22 18:34:40] Mode: counselling | Risk: N/A
+User: what we talked before
+127.0.0.1 - - [22/Nov/2025 18:34:40] "POST /api/chat HTTP/1.1" 200 -
+C:\Users\hites\Documents\Lumina\chatbot\rag_store.py:15: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-huggingface package and should be used instead. To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.
+  self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+[RAG] Loaded tags for categories: ['diagnosis', 'counselling', 'wellness']
+✅ Saved vector store for diagnosis with 12 chunks
+✅ Saved vector store for counselling with 19 chunks
+✅ Saved vector store for wellness with 14 chunks
+============================================================
+Mental Health Chatbot API Server
+Starting on port 5001
+============================================================
+
+Available endpoints:
+  GET  /health - Health check
+  POST /api/chat - Send message and get response
+  GET  /api/session/<id>/summary - Get session summary
+  GET  /api/session/<id>/history - Get conversation history
+  DELETE /api/session/<id> - Delete session
+  GET  /api/sessions - List all active sessions
+============================================================
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.81.33.116:5001
+Press CTRL+C to quit
+ * Restarting with stat
+C:\Users\hites\Documents\Lumina\chatbot\rag_store.py:15: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-huggingface package and should be used instead. To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.
+  self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+[RAG] Loaded tags for categories: ['diagnosis', 'counselling', 'wellness']
+✅ Saved vector store for diagnosis with 12 chunks
+✅ Saved vector store for counselling with 19 chunks
+✅ Saved vector store for wellness with 14 chunks
+============================================================
+Mental Health Chatbot API Server
+Starting on port 5001
+============================================================
+
+Available endpoints:
+  GET  /health - Health check
+  POST /api/chat - Send message and get response
+  GET  /api/session/<id>/summary - Get session summary
+  GET  /api/session/<id>/history - Get conversation history
+  DELETE /api/session/<id> - Delete session
+  GET  /api/sessions - List all active sessions
+============================================================
+ * Debugger is active!
+ * Debugger PIN: 209-342-243
+[DB DEBUG] get_recent_exchanges called with n=4, user_id=hiteshd258@gmail.com
+[DB INFO] No recent exchanges found for user hiteshd258@gmail.com in chat_history collection.
+[API] Created new session: 20251122_184645 for user: hiteshd258@gmail.com
+[API] Processing message from user: hiteshd258@gmail.com
+[API] Message: do you remember what we were talking
+[MODE] COUNSELLING (confidence: 0.17)
+[RETRIEVE] mode=counselling k=3 tags=[]
+
+[RAW JSON RESPONSE]: ```json
+{
+  "text": "I do remember our previous conversation. We were discussing some strategies to help you manage stress and build self-respect. Would you like to continue exploring those topics or is there something new you'd like to talk about today?",
+  "expression": "neutral"
+}
+```
+
+[PARSED] Text: I do remember our previous conversation. We were discussing some strategies to help you manage stres...
+[PARSED] Expression: neutral
+
+[2025-11-22 18:46:52] Mode: counselling | Risk: N/A
+User: do you remember what we were talking
+127.0.0.1 - - [22/Nov/2025 18:46:52] "POST /api/chat HTTP/1.1" 200 -
+[API] Using existing session: 20251122_184645
+[API] Processing message from user: hiteshd258@gmail.com
+[API] Message: hello
+[MODE] COUNSELLING (confidence: 0.19)
+[RETRIEVE] mode=counselling k=3 tags=[]
+
+[RAW JSON RESPONSE]: ```json
+{
+  "text": "Hello! It's great to reconnect with you. How have you been since we last spoke?",
+  "expression": "neutral"
+}
+```
+
+[PARSED] Text: Hello! It's great to reconnect with you. How have you been since we last spoke?...
+[PARSED] Expression: neutral
+
+[2025-11-22 18:51:36] Mode: counselling | Risk: N/A
+User: hello
+127.0.0.1 - - [22/Nov/2025 18:51:36] "POST /api/chat HTTP/1.1" 200 -
+[API] Using existing session: 20251122_184645
+[API] Processing message from user: hiteshd258@gmail.com
+[API] Message: great
+[MODE] COUNSELLING (confidence: 0.21)
+[RETRIEVE] mode=counselling k=3 tags=['gratitude']
+
+[RAW JSON RESPONSE]: ```json
+{
+  "text": "I'm really glad to hear that you're doing great! It's wonderful to see you feeling well. Would you like to share what's been going well, or is there something specific you'd like to talk about or work on today?",
+  "expression": "happy"
+}
+```
+
+[PARSED] Text: I'm really glad to hear that you're doing great! It's wonderful to see you feeling well. Would you l...
+[PARSED] Expression: happy
+
+[2025-11-22 18:53:47] Mode: counselling | Risk: N/A
+User: great
+127.0.0.1 - - [22/Nov/2025 18:53:47] "POST /api/chat HTTP/1.1" 200 -
+C:\Users\hites\Documents\Lumina\chatbot\rag_store.py:15: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-huggingface package and should be used instead. To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.
+  self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+[RAG] Loaded tags for categories: ['diagnosis', 'counselling', 'wellness']
+✅ Saved vector store for diagnosis with 12 chunks
+✅ Saved vector store for counselling with 19 chunks
+✅ Saved vector store for wellness with 14 chunks
+============================================================
+Mental Health Chatbot API Server
+Starting on port 5001
+============================================================
+
+Available endpoints:
+  GET  /health - Health check
+  POST /api/chat - Send message and get response
+  GET  /api/session/<id>/summary - Get session summary
+  GET  /api/session/<id>/history - Get conversation history
+  DELETE /api/session/<id> - Delete session
+  GET  /api/sessions - List all active sessions
+============================================================
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.81.33.116:5001
+Press CTRL+C to quit
+ * Restarting with stat
+C:\Users\hites\Documents\Lumina\chatbot\rag_store.py:15: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-huggingface package and should be used instead. To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.
+  self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+[RAG] Loaded tags for categories: ['diagnosis', 'counselling', 'wellness']
+✅ Saved vector store for diagnosis with 12 chunks
+✅ Saved vector store for counselling with 19 chunks
+✅ Saved vector store for wellness with 14 chunks
+============================================================
+Mental Health Chatbot API Server
+Starting on port 5001
+============================================================
+
+Available endpoints:
+  GET  /health - Health check
+  POST /api/chat - Send message and get response
+  GET  /api/session/<id>/summary - Get session summary
+  GET  /api/session/<id>/history - Get conversation history
+  DELETE /api/session/<id> - Delete session
+  GET  /api/sessions - List all active sessions
+============================================================
+ * Debugger is active!
+ * Debugger PIN: 209-342-243
+[DB DEBUG] get_recent_exchanges called with n=4, user_id=hiteshd258@gmail.com
+[DB INFO] Loaded 2 recent exchanges for user hiteshd258@gmail.com from latest chat history.
+[API] Created new session: 20251122_185549 for user: hiteshd258@gmail.com
+[API] Processing message from user: hiteshd258@gmail.com
+[API] Message: what were we talking
+[MODE] COUNSELLING (confidence: 0.20)
+[RETRIEVE] mode=counselling k=3 tags=[]
+
+[RAW JSON RESPONSE]: {
+  "text": "We were discussing how you're doing great and exploring what's been going well for you. I was asking if you'd like to share more about that or if there's something specific you'd like to talk about or work on today. How would you like to proceed?",
+  "expression": "neutral"
+}
+
+[PARSED] Text: We were discussing how you're doing great and exploring what's been going well for you. I was asking...
+[PARSED] Expression: neutral
+
+[2025-11-22 18:55:54] Mode: counselling | Risk: N/A
+User: what were we talking
+127.0.0.1 - - [22/Nov/2025 18:55:54] "POST /api/chat HTTP/1.1" 200 -
+[API] Using existing session: 20251122_185549
+[API] Processing message from user: freelancerhd04@gmail.com
+[API] Message: hi!
+[MODE] COUNSELLING (confidence: 0.22)
+[RETRIEVE] mode=counselling k=3 tags=[]
+
+[RAW JSON RESPONSE]: ```json
+{
+  "text": "Hi there! It's great to hear from you again. How are you feeling today?",
+  "expression": "neutral"
+}
+```
+
+[PARSED] Text: Hi there! It's great to hear from you again. How are you feeling today?...
+[PARSED] Expression: neutral
+
+[2025-11-22 18:57:58] Mode: counselling | Risk: N/A
+User: hi!
+127.0.0.1 - - [22/Nov/2025 18:57:58] "POST /api/chat HTTP/1.1" 200 -
+ * Detected change in 'C:\\Users\\hites\\Documents\\Lumina\\chatbot\\main.py', reloading
+ * Restarting with stat
+C:\Users\hites\Documents\Lumina\chatbot\rag_store.py:15: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-huggingface package and should be used instead. To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.
+  self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+[RAG] Loaded tags for categories: ['diagnosis', 'counselling', 'wellness']
+✅ Saved vector store for diagnosis with 12 chunks
+✅ Saved vector store for counselling with 19 chunks
+✅ Saved vector store for wellness with 14 chunks
+============================================================
+Mental Health Chatbot API Server
+Starting on port 5001
+============================================================
+
+Available endpoints:
+  GET  /health - Health check
+  POST /api/chat - Send message and get response
+  GET  /api/session/<id>/summary - Get session summary
+  GET  /api/session/<id>/history - Get conversation history
+  DELETE /api/session/<id> - Delete session
+  GET  /api/sessions - List all active sessions
+============================================================
+ * Debugger is active!
+ * Debugger PIN: 209-342-243
+C:\Users\hites\Documents\Lumina\chatbot\rag_store.py:15: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-huggingface package and should be used instead. To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.
+  self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+[RAG] Loaded tags for categories: ['diagnosis', 'counselling', 'wellness']
+✅ Saved vector store for diagnosis with 12 chunks
+✅ Saved vector store for counselling with 19 chunks
+✅ Saved vector store for wellness with 14 chunks
+============================================================
+Mental Health Chatbot API Server
+Starting on port 5001
+============================================================
+
+Available endpoints:
+  GET  /health - Health check
+  POST /api/chat - Send message and get response
+  GET  /api/session/<id>/summary - Get session summary
+  GET  /api/session/<id>/history - Get conversation history
+  DELETE /api/session/<id> - Delete session
+  GET  /api/sessions - List all active sessions
+============================================================
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.81.33.116:5001
+Press CTRL+C to quit
+ * Restarting with stat
+C:\Users\hites\Documents\Lumina\chatbot\rag_store.py:15: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-huggingface package and should be used instead. To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.
+  self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+[RAG] Loaded tags for categories: ['diagnosis', 'counselling', 'wellness']
+✅ Saved vector store for diagnosis with 12 chunks
+✅ Saved vector store for counselling with 19 chunks
+✅ Saved vector store for wellness with 14 chunks
+============================================================
+Mental Health Chatbot API Server
+Starting on port 5001
+============================================================
+
+Available endpoints:
+  GET  /health - Health check
+  POST /api/chat - Send message and get response
+  GET  /api/session/<id>/summary - Get session summary
+  GET  /api/session/<id>/history - Get conversation history
+  DELETE /api/session/<id> - Delete session
+  GET  /api/sessions - List all active sessions
+============================================================
+ * Debugger is active!
+ * Debugger PIN: 209-342-243
+[DB DEBUG] get_recent_exchanges called with n=4, user_id=hiteshd258@gmail.com
+[DB INFO] Loaded 4 recent exchanges for user hiteshd258@gmail.com from latest chat history.
+[API] Created new session: 20251122_190212 for user: hiteshd258@gmail.com
+[API] Processing message from user: hiteshd258@gmail.com
+[API] Message: hi what was i saying again
+[MODE] COUNSELLING (confidence: 0.20)
+[RETRIEVE] mode=counselling k=3 tags=['say no']
+
+[RAW JSON RESPONSE]: ```json
+{
+  "text": "It's okay if you're having trouble remembering! We were discussing how you're doing great and exploring what's been going well for you. Would you like to share more about that or is there something specific you'd like to talk about or work on today?",
+  "expression": "neutral"
+}
+```
+
+[PARSED] Text: It's okay if you're having trouble remembering! We were discussing how you're doing great and explor...
+[PARSED] Expression: neutral
+
+[2025-11-22 19:02:16] Mode: counselling | Risk: N/A
+User: hi what was i saying again
+127.0.0.1 - - [22/Nov/2025 19:02:16] "POST /api/chat HTTP/1.1" 200 -
+[API] Using existing session: 20251122_190212
+[API] Processing message from user: freelancerhd04@gmail.com
+[API] Message: hi
+[MODE] DIAGNOSIS (confidence: 0.25)
+[RETRIEVE] mode=diagnosis k=3 tags=[]
+
+[RAW JSON RESPONSE]: ```json
+{
+  "text": "Hi there! It seems like you might be having some trouble focusing or remembering our conversation. That can happen to anyone, but it might also be worth exploring further. Have you been feeling this way often? How has it been affecting your daily life or activities?",
+  "expression": "neutral"
+}
+```
+
+[PARSED] Text: Hi there! It seems like you might be having some trouble focusing or remembering our conversation. T...
+[PARSED] Expression: neutral
+
+[2025-11-22 19:03:05] Mode: diagnosis | Risk: N/A
+User: hi
+127.0.0.1 - - [22/Nov/2025 19:03:05] "POST /api/chat HTTP/1.1" 200 -
+ * Detected change in 'C:\\Users\\hites\\Documents\\Lumina\\chatbot\\main.py', reloading
+ * Restarting with stat
+C:\Users\hites\Documents\Lumina\chatbot\rag_store.py:15: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-huggingface package and should be used instead. To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.
+  self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+[RAG] Loaded tags for categories: ['diagnosis', 'counselling', 'wellness']
+✅ Saved vector store for diagnosis with 12 chunks
+✅ Saved vector store for counselling with 19 chunks
+✅ Saved vector store for wellness with 14 chunks
+============================================================
+Mental Health Chatbot API Server
+Starting on port 5001
+============================================================
+
+Available endpoints:
+  GET  /health - Health check
+  POST /api/chat - Send message and get response
+  GET  /api/session/<id>/summary - Get session summary
+  GET  /api/session/<id>/history - Get conversation history
+  DELETE /api/session/<id> - Delete session
+  GET  /api/sessions - List all active sessions
+============================================================
+ * Debugger is active!
+ * Debugger PIN: 209-342-243
+C:\Users\hites\Documents\Lumina\chatbot\rag_store.py:15: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-huggingface package and should be used instead. To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.
+  self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+[RAG] Loaded tags for categories: ['diagnosis', 'counselling', 'wellness']
+✅ Saved vector store for diagnosis with 12 chunks
+✅ Saved vector store for counselling with 19 chunks
+✅ Saved vector store for wellness with 14 chunks
+============================================================
+Mental Health Chatbot API Server
+Starting on port 5001
+============================================================
+
+Available endpoints:
+  GET  /health - Health check
+  POST /api/chat - Send message and get response
+  GET  /api/session/<id>/summary - Get session summary
+  GET  /api/session/<id>/history - Get conversation history
+  DELETE /api/session/<id> - Delete session
+  GET  /api/sessions - List all active sessions
+============================================================
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.81.33.116:5001
+Press CTRL+C to quit
+ * Restarting with stat
+C:\Users\hites\Documents\Lumina\chatbot\rag_store.py:15: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-huggingface package and should be used instead. To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.
+  self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+[RAG] Loaded tags for categories: ['diagnosis', 'counselling', 'wellness']
+✅ Saved vector store for diagnosis with 12 chunks
+✅ Saved vector store for counselling with 19 chunks
+✅ Saved vector store for wellness with 14 chunks
+============================================================
+Mental Health Chatbot API Server
+Starting on port 5001
+============================================================
+
+Available endpoints:
+  GET  /health - Health check
+  POST /api/chat - Send message and get response
+  GET  /api/session/<id>/summary - Get session summary
+  GET  /api/session/<id>/history - Get conversation history
+  DELETE /api/session/<id> - Delete session
+  GET  /api/sessions - List all active sessions
+============================================================
+ * Debugger is active!
+ * Debugger PIN: 209-342-243
+[DB DEBUG] get_recent_exchanges called with n=4, user_id=hiteshd258@gmail.com
+[DB INFO] Loaded 4 recent exchanges for user hiteshd258@gmail.com from latest chat history.
+[API] Created new session: 20251122_191050 for user: hiteshd258@gmail.com
+[API] Processing message from user: hiteshd258@gmail.com
+[API] Message: how are you
+[MODE] DIAGNOSIS (confidence: 0.28)
+[RETRIEVE] mode=diagnosis k=3 tags=['nightmare']
+
+[RAW JSON RESPONSE]: ```json
+{
+  "text": "I'm here to support you. I'm doing well, thank you for asking. How about you? How have you been feeling lately?",
+  "expression": "neutral"
+}
+```
+
+[PARSED] Text: I'm here to support you. I'm doing well, thank you for asking. How about you? How have you been feel...
+[PARSED] Expression: neutral
+
+[2025-11-22 19:10:57] Mode: diagnosis | Risk: N/A
+User: how are you
+127.0.0.1 - - [22/Nov/2025 19:10:57] "POST /api/chat HTTP/1.1" 200 -
+[API] Using existing session: 20251122_191050
+[API] Processing message from user: freelancerhd04@gmail.com
+[API] Message: hi
+[MODE] DIAGNOSIS (confidence: 0.33)
+[RETRIEVE] mode=diagnosis k=3 tags=[]
+
+[RAW JSON RESPONSE]: ```json
+{
+  "text": "Hi there! I'm here to chat and support you. How are you feeling today?",
+  "expression": "neutral"
+}
+```
+
+[PARSED] Text: Hi there! I'm here to chat and support you. How are you feeling today?...
+[PARSED] Expression: neutral
+
+[2025-11-22 19:12:55] Mode: diagnosis | Risk: N/A
+User: hi
+127.0.0.1 - - [22/Nov/2025 19:12:55] "POST /api/chat HTTP/1.1" 200 -
+ * Detected change in 'C:\\Users\\hites\\Documents\\Lumina\\chatbot\\api_server.py', reloading
+ * Restarting with stat
+C:\Users\hites\Documents\Lumina\chatbot\rag_store.py:15: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-huggingface package and should be used instead. To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.
+  self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+[RAG] Loaded tags for categories: ['diagnosis', 'counselling', 'wellness']
+✅ Saved vector store for diagnosis with 12 chunks
+✅ Saved vector store for counselling with 19 chunks
+✅ Saved vector store for wellness with 14 chunks
+============================================================
+Mental Health Chatbot API Server
+Starting on port 5001
+============================================================
+
+Available endpoints:
+  GET  /health - Health check
+  POST /api/chat - Send message and get response
+  GET  /api/session/<id>/summary - Get session summary
+  GET  /api/session/<id>/history - Get conversation history
+  DELETE /api/session/<id> - Delete session
+  GET  /api/sessions - List all active sessions
+============================================================
+ * Debugger is active!
+ * Debugger PIN: 209-342-243
+C:\Users\hites\Documents\Lumina\chatbot\rag_store.py:15: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-huggingface package and should be used instead. To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.
+  self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+[RAG] Loaded tags for categories: ['diagnosis', 'counselling', 'wellness']
+✅ Saved vector store for diagnosis with 12 chunks
+✅ Saved vector store for counselling with 19 chunks
+✅ Saved vector store for wellness with 14 chunks
+============================================================
+Mental Health Chatbot API Server
+Starting on port 5001
+============================================================
+
+Available endpoints:
+  GET  /health - Health check
+  POST /api/chat - Send message and get response
+  GET  /api/session/<id>/summary - Get session summary
+  GET  /api/session/<id>/history - Get conversation history
+  DELETE /api/session/<id> - Delete session
+  GET  /api/sessions - List all active sessions
+============================================================
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.81.33.116:5001
+Press CTRL+C to quit
+ * Restarting with stat
+C:\Users\hites\Documents\Lumina\chatbot\rag_store.py:15: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-huggingface package and should be used instead. To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.
+  self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+[RAG] Loaded tags for categories: ['diagnosis', 'counselling', 'wellness']
+✅ Saved vector store for diagnosis with 12 chunks
+✅ Saved vector store for counselling with 19 chunks
+✅ Saved vector store for wellness with 14 chunks
+============================================================
+Mental Health Chatbot API Server
+Starting on port 5001
+============================================================
+
+Available endpoints:
+  GET  /health - Health check
+  POST /api/chat - Send message and get response
+  GET  /api/session/<id>/summary - Get session summary
+  GET  /api/session/<id>/history - Get conversation history
+  DELETE /api/session/<id> - Delete session
+  GET  /api/sessions - List all active sessions
+============================================================
+ * Debugger is active!
+ * Debugger PIN: 209-342-243
+[DB DEBUG] get_recent_exchanges called with n=4, user_id=hiteshd258@gmail.com
+[DB INFO] Loaded 4 recent exchanges for user hiteshd258@gmail.com from latest chat history.
+[API] Created new session: 20251122_192538 for user: hiteshd258@gmail.com
+[API] Processing message from user: hiteshd258@gmail.com
+[API] Message: hello
+[MODE] COUNSELLING (confidence: 0.31)
+[RETRIEVE] mode=counselling k=3 tags=[]
+
+[RAW JSON RESPONSE]: ```json
+{
+  "text": "Hello! It's good to see you again. How are you feeling today?",
+  "expression": "neutral"
+}
+```
+
+[PARSED] Text: Hello! It's good to see you again. How are you feeling today?...
+[PARSED] Expression: neutral
+
+[2025-11-22 19:25:42] Mode: counselling | Risk: N/A
+User: hello
+127.0.0.1 - - [22/Nov/2025 19:25:42] "POST /api/chat HTTP/1.1" 200 -
+[API] Using existing session: 20251122_192538
+[DB DEBUG] get_recent_exchanges called with n=4, user_id=freelancerhd04@gmail.com
+[DB INFO] Loaded 2 recent exchanges for user freelancerhd04@gmail.com from latest chat history.
+[API] Processing message from user: freelancerhd04@gmail.com
+[API] Message: hey
+[MODE] DIAGNOSIS (confidence: 0.21)
+[RETRIEVE] mode=diagnosis k=3 tags=[]
+
+[RAW JSON RESPONSE]: {
+  "text": "Hi again! How can I assist you today? Are you feeling like you'd like to talk about anything specific?",
+  "expression": "neutral"
+}
+
+[PARSED] Text: Hi again! How can I assist you today? Are you feeling like you'd like to talk about anything specifi...
+[PARSED] Expression: neutral
+
+[2025-11-22 19:27:19] Mode: diagnosis | Risk: N/A
+User: hey
+127.0.0.1 - - [22/Nov/2025 19:27:19] "POST /api/chat HTTP/1.1" 200 -
+[API] Using existing session: 20251122_192538
+[API] Processing message from user: freelancerhd04@gmail.com
+[API] Message: my name is hitesh
+[MODE] COUNSELLING (confidence: 0.21)
+[RETRIEVE] mode=counselling k=3 tags=['reframe', 'name emotion']
+
+[RAW JSON RESPONSE]: {
+  "text": "Hi Hitesh, it's nice to meet you! How are you feeling today? I'm here to listen and support you in any way I can.",
+  "expression": "neutral"
+}
+
+[PARSED] Text: Hi Hitesh, it's nice to meet you! How are you feeling today? I'm here to listen and support you in a...
+[PARSED] Expression: neutral
+
+[2025-11-22 19:28:17] Mode: counselling | Risk: N/A
+User: my name is hitesh
+127.0.0.1 - - [22/Nov/2025 19:28:17] "POST /api/chat HTTP/1.1" 200 -
+[API] Using existing session: 20251122_192538
+[DB DEBUG] get_recent_exchanges called with n=4, user_id=hiteshd258@gmail.com
+[DB INFO] Loaded 4 recent exchanges for user hiteshd258@gmail.com from latest chat history.
+[API] Processing message from user: hiteshd258@gmail.com
+[API] Message: what was my name
+[MODE] COUNSELLING (confidence: 0.20)
+[RETRIEVE] mode=counselling k=3 tags=['reframe', 'name emotion']
+
+[RAW JSON RESPONSE]: ```json
+{
+  "text": "I'm sorry, but I don't have access to personal information like your name. How can I assist you today?",
+  "expression": "neutral"
+}
+```
+
+[PARSED] Text: I'm sorry, but I don't have access to personal information like your name. How can I assist you toda...
+[PARSED] Expression: neutral
+
+[2025-11-22 19:28:55] Mode: counselling | Risk: N/A
+User: what was my name
+127.0.0.1 - - [22/Nov/2025 19:28:55] "POST /api/chat HTTP/1.1" 200 -
+[API] Using existing session: 20251122_192538
+[DB DEBUG] get_recent_exchanges called with n=4, user_id=freelancerhd04@gmail.com
+[DB INFO] Loaded 4 recent exchanges for user freelancerhd04@gmail.com from latest chat history.
+[API] Processing message from user: freelancerhd04@gmail.com
+[API] Message: what was my name
+[MODE] COUNSELLING (confidence: 0.24)
+[RETRIEVE] mode=counselling k=3 tags=['reframe', 'name emotion']
+
+[RAW JSON RESPONSE]: ```json
+{
+  "text": "Your name is Hitesh. It's great to have you here, Hitesh. How are you feeling today? I'm here to listen and support you.",
+  "expression": "neutral"
+}
+```
+
+[PARSED] Text: Your name is Hitesh. It's great to have you here, Hitesh. How are you feeling today? I'm here to lis...
+[PARSED] Expression: neutral
+
+[2025-11-22 19:29:35] Mode: counselling | Risk: N/A
+User: what was my name
+127.0.0.1 - - [22/Nov/2025 19:29:35] "POST /api/chat HTTP/1.1" 200 -
+C:\Users\hites\Documents\Lumina\chatbot\rag_store.py:15: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-huggingface package and should be used instead. To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.
+  self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+[RAG] Loaded tags for categories: ['diagnosis', 'counselling', 'wellness']
+✅ Saved vector store for diagnosis with 12 chunks
+✅ Saved vector store for counselling with 19 chunks
+✅ Saved vector store for wellness with 14 chunks
+============================================================
+Mental Health Chatbot API Server
+Starting on port 5001
+============================================================
+
+Available endpoints:
+  GET  /health - Health check
+  POST /api/chat - Send message and get response
+  GET  /api/session/<id>/summary - Get session summary
+  GET  /api/session/<id>/history - Get conversation history
+  DELETE /api/session/<id> - Delete session
+  GET  /api/sessions - List all active sessions
+============================================================
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.81.33.116:5001
+Press CTRL+C to quit
+ * Restarting with stat
+C:\Users\hites\Documents\Lumina\chatbot\rag_store.py:15: LangChainDeprecationWarning: The class `HuggingFaceEmbeddings` was deprecated in LangChain 0.2.2 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-huggingface package and should be used instead. To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.
+  self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+[RAG] Loaded tags for categories: ['diagnosis', 'counselling', 'wellness']
+✅ Saved vector store for diagnosis with 12 chunks
+✅ Saved vector store for counselling with 19 chunks
+✅ Saved vector store for wellness with 14 chunks
+============================================================
+Mental Health Chatbot API Server
+Starting on port 5001
+============================================================
+
+Available endpoints:
+  GET  /health - Health check
+  POST /api/chat - Send message and get response
+  GET  /api/session/<id>/summary - Get session summary
+  GET  /api/session/<id>/history - Get conversation history
+  DELETE /api/session/<id> - Delete session
+  GET  /api/sessions - List all active sessions
+============================================================
+ * Debugger is active!
+ * Debugger PIN: 209-342-243
+[DB DEBUG] get_recent_exchanges called with n=4, user_id=hiteshd258@gmail.com
+[DB INFO] Loaded 4 recent exchanges for user hiteshd258@gmail.com from latest chat history.
+[API] Created new session: 20251122_193922 for user: hiteshd258@gmail.com
+[API] Processing message from user: hiteshd258@gmail.com
+[API] Message: [neutral face] i was saying hello
+[MODE] COUNSELLING (confidence: 0.17)
+[RETRIEVE] mode=counselling k=3 tags=['say no']
+
+[RAW JSON RESPONSE]: ```json
+{
+  "text": "Hello! It's great to connect with you. How are you feeling today?",
+  "expression": "neutral"
+}
+```
+
+[PARSED] Text: Hello! It's great to connect with you. How are you feeling today?...
+[PARSED] Expression: neutral
+
+[2025-11-22 19:39:25] Mode: counselling | Risk: N/A
+User: [neutral face] i was saying hello
+127.0.0.1 - - [22/Nov/2025 19:39:25] "POST /api/chat HTTP/1.1" 200 -

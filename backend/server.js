@@ -71,6 +71,11 @@ const axios = require('axios');
 const { router: authRouter, authenticateToken } = require('./auth');
 const connectDB = require('./config/database');
 const ChatHistory = require('./models/ChatHistory');
+
+// Patch: Ensure userId is always a String for ChatHistory
+// If your ChatHistory schema uses mongoose.Schema.Types.ObjectId for userId, change it to String in models/ChatHistory.js
+// Example:
+// userId: { type: String, required: true },
 const { Client } = require('@gradio/client');
 require('dotenv').config();
 
@@ -101,7 +106,7 @@ app.get('/health', (req, res) => {
 // Main endpoint: Receive STT text, process through chatbot, convert to speech
 app.post('/api/process-speech', authenticateToken, async (req, res) => {
   try {
-    const { transcript, userId, sessionId, emotionContext } = req.body;
+    const { transcript, sessionId, emotionContext } = req.body;
 
     if (!transcript) {
       return res.status(400).json({ error: 'Transcript is required' });
@@ -112,15 +117,18 @@ app.post('/api/process-speech', authenticateToken, async (req, res) => {
       console.log('Received emotionContext:', emotionContext);
     }
 
+    // Use user email as userId
+    const userEmail = req.user.email;
+
     // Step 1: Send transcript to chatbot API
     console.log('Step 1: Sending to chatbot API...');
-    let augmentedTranscript = transcript;
+    let emotionTag = 'neutral';
     if (emotionContext && emotionContext.dominantEmotion) {
-      const avg = emotionContext.averageProbabilities;
-      const avgStr = avg ? `avg(H:${(avg.Happiness||0).toFixed(2)},N:${(avg.Neutral||0).toFixed(2)},S:${(avg.Sadness||0).toFixed(2)})` : 'no-avg-probs';
-      augmentedTranscript = `[context:dominant_emotion=${emotionContext.dominantEmotion};${avgStr};frames=${emotionContext.frameCount}]\n` + transcript;
+      emotionTag = emotionContext.dominantEmotion;
     }
-    const chatbotResponse = await sendToChatbot(augmentedTranscript, userId, sessionId);
+    // Format: '[{emotion} face] transcript'
+    const augmentedTranscript = `[${emotionTag} face] ${transcript}`;
+    const chatbotResponse = await sendToChatbot(augmentedTranscript, userEmail, sessionId);
     console.log('Chatbot response:', chatbotResponse);
 
     // Step 2: Save chat history to database (store user dominant emotion if available)
@@ -129,7 +137,7 @@ app.post('/api/process-speech', authenticateToken, async (req, res) => {
     const normalizedEmotion = (chatbotResponse && chatbotResponse.expression) ? String(chatbotResponse.expression).toLowerCase() : 'neutral';
     const assistantPayload = JSON.stringify({ text: chatbotResponse?.text || String(chatbotResponse || ''), emotion: normalizedEmotion });
     const userEmotionForDB = (emotionContext && emotionContext.dominantEmotion) ? emotionContext.dominantEmotion : 'neutral';
-    await saveChatHistory(req.user.id, transcript, assistantPayload, userEmotionForDB);
+    await saveChatHistory(userEmail, transcript, assistantPayload, userEmotionForDB);
 
     // Step 3: Send chatbot response to TTS API
     console.log('Step 3: Converting to speech...');
@@ -316,17 +324,24 @@ app.post('/api/emotion-frame', authenticateToken, async (req, res) => {
     }
     // Forward to Python emotion API
     let pyResp;
+    let data = {};
+    let apiError = null;
     try {
       pyResp = await axios.post(EMOTION_API_URL, { image_base64 }, { timeout: 5000 });
+      data = pyResp.data || {};
     } catch (err) {
-      console.error('Emotion API error:', err.message);
-      return res.status(502).json({ error: 'Emotion service unavailable', detail: err.message });
+      apiError = err;
+      // Do not print error, fallback to neutral
     }
-    const data = pyResp.data || {};
-    const rawEmotion = (data.emotion || 'neutral').toLowerCase();
+    let rawEmotion = (data.emotion || '').toLowerCase();
     let normalizedEmotion = 'neutral';
     if (rawEmotion.includes('hap')) normalizedEmotion = 'happy';
     else if (rawEmotion.includes('sad')) normalizedEmotion = 'sad';
+    // If API failed or emotion not returned, use neutral
+    if (apiError || !rawEmotion) {
+      normalizedEmotion = 'neutral';
+      data.probabilities = null;
+    }
     // Build response
     res.json({
       success: true,
@@ -335,8 +350,13 @@ app.post('/api/emotion-frame', authenticateToken, async (req, res) => {
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    console.error('Error handling emotion-frame:', error.message);
-    res.status(500).json({ error: 'Failed to process emotion frame', message: error.message });
+    // Fallback to neutral if any error
+    res.json({
+      success: true,
+      emotion: 'neutral',
+      probabilities: null,
+      timestamp: new Date().toISOString()
+    });
   }
 });
 
@@ -400,7 +420,10 @@ app.get('/api/chat-history', authenticateToken, async (req, res) => {
   try {
     const { limit = 10, skip = 0 } = req.query;
 
-    const chatHistories = await ChatHistory.find({ userId: req.user.id })
+    // Use user email as userId
+    const userEmail = req.user.email;
+
+    const chatHistories = await ChatHistory.find({ userId: userEmail })
       .sort({ createdAt: -1 })
       .limit(parseInt(limit))
       .skip(parseInt(skip));
@@ -422,9 +445,11 @@ app.get('/api/chat-history', authenticateToken, async (req, res) => {
 // Get specific chat session by ID
 app.get('/api/chat-history/:id', authenticateToken, async (req, res) => {
   try {
+    // Use user email as userId
+    const userEmail = req.user.email;
     const chatHistory = await ChatHistory.findOne({
       _id: req.params.id,
-      userId: req.user.id
+      userId: userEmail
     });
 
     if (!chatHistory) {
@@ -447,9 +472,11 @@ app.get('/api/chat-history/:id', authenticateToken, async (req, res) => {
 // Delete chat history by ID
 app.delete('/api/chat-history/:id', authenticateToken, async (req, res) => {
   try {
+    // Use user email as userId
+    const userEmail = req.user.email;
     const result = await ChatHistory.findOneAndDelete({
       _id: req.params.id,
-      userId: req.user.id
+      userId: userEmail
     });
 
     if (!result) {

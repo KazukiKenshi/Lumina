@@ -55,11 +55,12 @@ def chat():
         if session_id and session_id in sessions:
             session = sessions[session_id]
             print(f"[API] Using existing session: {session_id}")
+            session.set_user(user_id)  # Refresh session if user changes
         else:
-            session = ChatSession()
+            session = ChatSession(user_id=user_id)
             session_id = session.state['session_id']
             sessions[session_id] = session
-            print(f"[API] Created new session: {session_id}")
+            print(f"[API] Created new session: {session_id} for user: {user_id}")
         
         # Process message
         print(f"[API] Processing message from user: {user_id}")
