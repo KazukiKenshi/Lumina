@@ -27,10 +27,13 @@ function Home() {
           {user ? (
             <>
               <Link to="/play" className="nav-link">Get Started</Link>
+              <Link to="/history" className="nav-link">History</Link>
               <button onClick={handleSignOut} className="nav-link signout-btn">Sign Out</button>
             </>
           ) : (
-            <Link to="/login" className="nav-link">Sign In</Link>
+            <>
+              <Link to="/login" className="nav-link">Sign In</Link>
+            </>
           )}
         </div>
       </nav>

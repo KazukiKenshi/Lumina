@@ -3,13 +3,16 @@ import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react
 import './App.css';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Home from './components/Home';
+import ChatHistoryPage from './components/ChatHistoryPage';
 import Login from './components/Login';
 import Register from './components/Register';
 import PrivateRoute from './components/PrivateRoute';
 import UnityPlayer from './components/UnityPlayer';
 import ChatInput from './components/ChatInput';
 import ChatOverlay from './components/ChatOverlay';
+import EmotionStream from './components/EmotionStream';
 import { ChatProvider } from './contexts/ChatContext';
+import { EmotionProvider } from './contexts/EmotionContext';
 
 function App() {
   console.log('📱 App component is rendering');
@@ -23,9 +26,16 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/play" element={
               <PrivateRoute>
-                <ChatProvider>
-                  <UnityPage />
-                </ChatProvider>
+                <EmotionProvider>
+                  <ChatProvider>
+                    <UnityPage />
+                  </ChatProvider>
+                </EmotionProvider>
+              </PrivateRoute>
+            } />
+            <Route path="/history" element={
+              <PrivateRoute>
+                <ChatHistoryPage />
               </PrivateRoute>
             } />
           </Routes>
@@ -47,11 +57,13 @@ function UnityPage() {
 
   return (
     <div className="unity-page">
-      <Link to="/" className="floating-back-button">← Home</Link>
+      <Link to="/" className="floating-back-button">Home</Link>
+      <Link to="/history" className="floating-back-button" style={{ left: '120px' }}>📜 History</Link>
       <button onClick={handleSignOut} className="floating-signout-button">
         Sign Out
       </button>
       <ChatOverlay />
+      <EmotionStream />
       <ChatInput />
       <UnityPlayer />
     </div>

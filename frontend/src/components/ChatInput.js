@@ -3,6 +3,7 @@ import axios from 'axios';
 import { unityInstance } from './UnityPlayer';
 import { useChat } from '../contexts/ChatContext';
 import './ChatInput.css';
+import { useEmotion } from '../contexts/EmotionContext';
 
 const ChatInput = () => {
     const [inputText, setInputText] = useState('');
@@ -11,6 +12,7 @@ const ChatInput = () => {
     const recognitionRef = useRef(null);
     const inputRef = useRef(null);
     const { addMessage } = useChat();
+    const { getSummary } = useEmotion();
 
     // Minimal SpeechRecognition setup
     useEffect(() => {
@@ -75,11 +77,20 @@ const ChatInput = () => {
         }
 
         try {
+            // Reintroduce emotion context summary for LLM prompt engineering
+            const summary = getSummary();
+            const emotionContext = summary.frameCount > 0 ? {
+                dominantEmotion: summary.dominantEmotion,
+                averageProbabilities: summary.averageProbabilities,
+                frameCount: summary.frameCount,
+                windowMs: 30000
+            } : null;
             const response = await axios.post('http://localhost:5000/api/process-speech', {
                 transcript: textToSend,
                 timestamp: new Date().toISOString(),
                 userId: 'user123',
-                sessionId: sessionStorage.getItem('sessionId') || null
+                sessionId: sessionStorage.getItem('sessionId') || null,
+                emotionContext
             });
 
             console.log('Response:', response.data);

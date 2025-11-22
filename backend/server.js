@@ -25,6 +25,7 @@ app.use('/api/auth', authRouter);
 // Configuration - Update these URLs with your actual API endpoints
 const CHATBOT_API_URL = process.env.CHATBOT_API_URL || 'https://jsonplaceholder.typicode.com/posts';
 // const TTS_API_URL = process.env.TTS_API_URL || 'http://localhost:8000/tts'; // Your TTS service
+const EMOTION_API_URL = process.env.EMOTION_API_URL || 'http://localhost:8001/predict';
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -34,25 +35,35 @@ app.get('/health', (req, res) => {
 // Main endpoint: Receive STT text, process through chatbot, convert to speech
 app.post('/api/process-speech', authenticateToken, async (req, res) => {
   try {
-    const { transcript, userId, sessionId } = req.body;
+    const { transcript, userId, sessionId, emotionContext } = req.body;
 
     if (!transcript) {
       return res.status(400).json({ error: 'Transcript is required' });
     }
 
     console.log(`[${new Date().toISOString()}] Received transcript:`, transcript);
+    if (emotionContext) {
+      console.log('Received emotionContext:', emotionContext);
+    }
 
     // Step 1: Send transcript to chatbot API
     console.log('Step 1: Sending to chatbot API...');
-    const chatbotResponse = await sendToChatbot(transcript, userId, sessionId);
+    let augmentedTranscript = transcript;
+    if (emotionContext && emotionContext.dominantEmotion) {
+      const avg = emotionContext.averageProbabilities;
+      const avgStr = avg ? `avg(H:${(avg.Happiness||0).toFixed(2)},N:${(avg.Neutral||0).toFixed(2)},S:${(avg.Sadness||0).toFixed(2)})` : 'no-avg-probs';
+      augmentedTranscript = `[context:dominant_emotion=${emotionContext.dominantEmotion};${avgStr};frames=${emotionContext.frameCount}]\n` + transcript;
+    }
+    const chatbotResponse = await sendToChatbot(augmentedTranscript, userId, sessionId);
     console.log('Chatbot response:', chatbotResponse);
 
-    // Step 2: Save chat history to database
+    // Step 2: Save chat history to database (store user dominant emotion if available)
     console.log('Step 2: Saving chat history...');
     // Normalize to JSON string with text + emotion for persistence and TTS
     const normalizedEmotion = (chatbotResponse && chatbotResponse.expression) ? String(chatbotResponse.expression).toLowerCase() : 'neutral';
     const assistantPayload = JSON.stringify({ text: chatbotResponse?.text || String(chatbotResponse || ''), emotion: normalizedEmotion });
-    await saveChatHistory(req.user.id, transcript, assistantPayload);
+    const userEmotionForDB = (emotionContext && emotionContext.dominantEmotion) ? emotionContext.dominantEmotion : 'neutral';
+    await saveChatHistory(req.user.id, transcript, assistantPayload, userEmotionForDB);
 
     // Step 3: Send chatbot response to TTS API
     console.log('Step 3: Converting to speech...');
@@ -230,8 +241,41 @@ app.post('/api/chatbot', async (req, res) => {
   }
 });
 
+// Webcam emotion frame endpoint (expects base64 image string)
+app.post('/api/emotion-frame', authenticateToken, async (req, res) => {
+  try {
+    const { image_base64 } = req.body;
+    if (!image_base64) {
+      return res.status(400).json({ error: 'image_base64 is required' });
+    }
+    // Forward to Python emotion API
+    let pyResp;
+    try {
+      pyResp = await axios.post(EMOTION_API_URL, { image_base64 }, { timeout: 5000 });
+    } catch (err) {
+      console.error('Emotion API error:', err.message);
+      return res.status(502).json({ error: 'Emotion service unavailable', detail: err.message });
+    }
+    const data = pyResp.data || {};
+    const rawEmotion = (data.emotion || 'neutral').toLowerCase();
+    let normalizedEmotion = 'neutral';
+    if (rawEmotion.includes('hap')) normalizedEmotion = 'happy';
+    else if (rawEmotion.includes('sad')) normalizedEmotion = 'sad';
+    // Build response
+    res.json({
+      success: true,
+      emotion: normalizedEmotion,
+      probabilities: data.probabilities || null,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error handling emotion-frame:', error.message);
+    res.status(500).json({ error: 'Failed to process emotion frame', message: error.message });
+  }
+});
+
 // Function to save chat history to database
-async function saveChatHistory(userId, userMessage, assistantResponse) {
+async function saveChatHistory(userId, userMessage, assistantResponse, userEmotion = 'neutral') {
   try {
     // Find or create chat history for today
     const today = new Date();
@@ -254,7 +298,7 @@ async function saveChatHistory(userId, userMessage, assistantResponse) {
     chatHistory.messages.push({
       role: 'user',
       content: userMessage,
-      emotion: 'neutral'
+      emotion: userEmotion || 'neutral'
     });
 
     // Add assistant response (extract emotion if it's JSON)
