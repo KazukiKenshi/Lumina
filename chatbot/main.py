@@ -14,6 +14,53 @@ from post_process import format_for_avatar
 from mode_classifier import classify_mode_with_context
 
 from sentence_transformers import util
+import logging
+from logging.handlers import TimedRotatingFileHandler  # retained import (unused after removal) to avoid broader refactor
+import sys
+import io
+
+# -------------------------
+# Logger + terminal capture setup (file log removed; only terminal capture retained)
+# -------------------------
+LOG_DIR = os.path.dirname(__file__)
+LOG_FOLDER = os.path.join(LOG_DIR, 'logs')
+os.makedirs(LOG_FOLDER, exist_ok=True)
+
+logger = logging.getLogger('lumina_chatbot')
+logger.setLevel(logging.INFO)
+if not logger.handlers:
+    # Only stream to stdout; stdout is tee-captured below
+    sh = logging.StreamHandler(sys.stdout)
+    sh.setLevel(logging.INFO)
+    sh.setFormatter(logging.Formatter('%(asctime)s %(levelname)s: %(message)s', datefmt='%H:%M:%S'))
+    logger.addHandler(sh)
+
+# Capture everything printed to terminal (stdout & stderr) into daily file
+TERMINAL_CAPTURE_PATH = os.path.join(LOG_FOLDER, f"terminal-{datetime.now().strftime('%Y-%m-%d')}.txt")
+
+class TeeStream(io.TextIOBase):
+    def __init__(self, *streams):
+        self.streams = streams
+    def write(self, data):
+        for s in self.streams:
+            try:
+                s.write(data)
+            except Exception:
+                pass
+        return len(data)
+    def flush(self):
+        for s in self.streams:
+            try:
+                s.flush()
+            except Exception:
+                pass
+
+try:
+    terminal_file_handle = open(TERMINAL_CAPTURE_PATH, 'a', encoding='utf-8')
+    sys.stdout = TeeStream(sys.stdout, terminal_file_handle)
+    sys.stderr = TeeStream(sys.stderr, terminal_file_handle)
+except Exception as e:
+    logger.warning(f"Failed to set up terminal capture: {e}")
 
 
 rag = RAGDataStore()
@@ -503,12 +550,26 @@ def retrieve_node(state: Dict[str, Any]) -> Dict[str, Any]:
     """Retrieve relevant knowledge from external RAG datastore"""
     if state.get("safe", True):
         mode = state.get("mode", "wellness")
+        query = state.get("user_input", "")
+        # Match tags for hint conditions
+        matched_tags = rag_system.match_tags(query, mode)
+
+        # Adaptive k heuristic
+        # Broad if: long query OR high unique token count OR zero matched tags
+        tokens = [t for t in re.split(r"\W+", query.lower()) if t]
+        unique_tokens = len(set(tokens))
+        broad = (len(query) > 80) or (unique_tokens > 14) or (not matched_tags and len(query) > 40)
+        k = 5 if broad else 3
+
         try:
             state["retrieved_context"] = rag_system.retrieve(
-                state["user_input"],
+                query,
                 category=mode,
-                k=3
+                k=k,
+                hint_conditions=matched_tags or None,
+                summarize=True
             )
+            print(f"[RETRIEVE] mode={mode} k={k} tags={matched_tags}")
         except Exception as e:
             print(f"[WARN] Retrieval failed: {e}")
             state["retrieved_context"] = ""
@@ -599,9 +660,9 @@ def generate_node(state: Dict[str, Any]) -> Dict[str, Any]:
 def log_node(state: Dict[str, Any]) -> Dict[str, Any]:
     """Log conversation and avatar emotion metadata."""
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # Console print for quick feedback
     print(f"\n[{timestamp}] Mode: {state.get('mode')} | Risk: {state.get('risk_level', 'N/A')}")
     print(f"User: {state['user_input']}")
-    # Removed duplicate print - response is printed in interactive mode
 
     if state.get("diagnosed_conditions"):
         print(f"Tracked conditions: {set(state['diagnosed_conditions'])}")
@@ -616,6 +677,30 @@ def log_node(state: Dict[str, Any]) -> Dict[str, Any]:
         print(f"Expression: {avatar_meta.get('expression')}")
         print(f"Animation: {avatar_meta.get('animation')}")
         print(f"Estimated speech duration: {avatar_meta.get('duration')}s")
+
+    # Structured file logging (arranged by date via TimedRotatingFileHandler)
+    try:
+        lines = []
+        lines.append('-----')
+        lines.append(f"Session: {state.get('session_id', 'N/A')}")
+        lines.append(f"Timestamp: {timestamp}")
+        lines.append(f"Mode: {state.get('mode')} | Risk: {state.get('risk_level', 'N/A')}")
+        if state.get('diagnosed_conditions'):
+            lines.append(f"Diagnosed(approx): {', '.join(set(state['diagnosed_conditions']))}")
+        if state.get('diagnosis_confidence'):
+            lines.append(f"Diagnosis confidence: {state.get('diagnosis_confidence')}")
+        lines.append(f"User: {state.get('user_input')}")
+        lines.append(f"Assistant: {state.get('response')}")
+        # avatar metadata
+        if avatar_meta:
+            lines.append(f"AvatarEmotion: {avatar_meta.get('emotion')} | Expression: {avatar_meta.get('expression')}")
+            lines.append(f"Animation: {avatar_meta.get('animation')} | Duration: {avatar_meta.get('duration')}s")
+
+        # Join and write to logger
+        logger.info('\n'.join(lines))
+    except Exception as e:
+        # Ensure logging failure does not break the graph
+        print(f"[LOG ERROR] Failed to write to log file: {e}")
 
     return state
 

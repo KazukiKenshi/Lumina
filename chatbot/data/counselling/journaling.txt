@@ -1,0 +1,20 @@
+Reflective & Structured Journaling
+---------------------------------
+Benefits:
+- Externalizes spiraling thoughts
+- Tracks patterns (sleep, mood, triggers)
+- Clarifies values and priority shifts
+
+Formats:
+1. Thought Record (CBT)
+   Situation | Emotion (0-100%) | Automatic Thought | Evidence For | Evidence Against | Balanced Thought | Action
+2. Gratitude List: 3 specific items (avoid generic wording)
+3. Emotion Log: Time, Emotion, Intensity, Trigger, Skill Used, Result
+4. Values Alignment: What mattered today? Did actions align? What is one small adjustment tomorrow?
+5. Worry Box: Write the worry, schedule a 10-min worry period later; defer until then.
+
+Tips:
+- Keep entries brief (2–5 min) to lower resistance.
+- Re-read weekly to extract patterns instead of daily rumination.
+- Pair with habit stacking (journal right after evening teeth brushing).
+- Use objective language: replace "always/never" with timelines ("3 times this week").

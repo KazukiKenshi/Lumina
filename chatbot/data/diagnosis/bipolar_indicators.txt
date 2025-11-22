@@ -1,0 +1,27 @@
+Bipolar Spectrum Indicators
+---------------------------
+Mood Episode Types:
+- Depressive: Similar to unipolar depression (low mood, anhedonia, sleep/appetite change).
+- Hypomanic: Elevated/irritable mood + increased activity lasting >=4 days without marked impairment (no psychosis).
+- Manic: Elevated/irritable + functional impairment, possible psychosis, hospitalization risk.
+
+Key Hypo/Manic Features:
+- Decreased need for sleep (feels rested on little sleep)
+- Pressured speech, flight of ideas
+- Grandiosity / inflated self-esteem
+- Increased goal-directed activity or psychomotor agitation
+- Risky behaviors (spending sprees, impulsive sex, investments)
+
+Screening Clues:
+- Antidepressant activation (mood elevation beyond baseline)
+- Cyclical mood history (periods of unusually high energy vs crashes)
+- Family history of bipolar disorder
+
+Differential Considerations:
+- Distinguish ADHD (lifelong pattern) vs episodic elevated mood.
+- Rule out substance-induced mood changes.
+
+Support Prompts:
+- Track sleep, energy, spending, impulsivity early.
+- Encourage professional evaluation before med changes.
+- Promote mood stabilizing routines (consistent sleep/wake, reduced stimulation at night).

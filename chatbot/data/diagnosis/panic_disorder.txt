@@ -1,0 +1,32 @@
+Panic Disorder Indicators
+-------------------------
+Core Feature:
+- Recurrent unexpected panic attacks (abrupt surge of intense fear/discomfort peaking within minutes).
+
+Common Panic Attack Symptoms:
+- Palpitations, pounding heart, tachycardia
+- Sweating
+- Trembling or shaking
+- Shortness of breath / smothering
+- Feelings of choking
+- Chest pain or discomfort
+- Nausea or abdominal distress
+- Dizziness, light-headedness
+- Chills or heat sensations
+- Paresthesias
+- Derealization or depersonalization
+- Fear of losing control or "going crazy"
+- Fear of dying
+
+Associated Criteria:
+- Persistent worry about additional attacks or consequences.
+- Significant maladaptive behavior changes (avoidance of exercise, unfamiliar places, leaving home alone).
+
+Differential Points:
+- Rule out medical causes (cardiac, endocrine) especially in first episodes.
+- Differentiate from social anxiety (panic is not limited to performance or social situations).
+
+Support Prompts:
+- Normalize physical intensity as non-dangerous.
+- Encourage graded exposure & interoceptive exercises.
+- Suggest breathing regulation (avoid fast shallow hyperventilation).

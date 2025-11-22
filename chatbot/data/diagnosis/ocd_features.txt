@@ -1,0 +1,22 @@
+Obsessive-Compulsive Features (OCD)
+----------------------------------
+Core Components:
+- Obsessions: Intrusive, recurrent thoughts, images, urges causing anxiety/distress.
+- Compulsions: Repetitive behaviors or mental acts aimed at reducing distress or preventing feared outcome.
+
+Common Themes:
+- Contamination, symmetry/exactness, harm, taboo intrusive thoughts (sexual, religious, aggressive), checking.
+
+Functional Indicators:
+- Time consumption (>1 hour/day) or significant distress/impairment.
+- Attempts to suppress/neutralize thoughts.
+- Ego-dystonic nature of intrusive content (recognized as unwanted).
+
+Differential Points:
+- Distinguish from generalized worry (OCD: specific intrusive images/rituals).
+- Different from psychosis (OCD: insight usually partially preserved).
+
+Support Prompts:
+- Validate distress while reframing mental events as non-dangerous.
+- Encourage evidence-based treatment (exposure and response prevention, CBT).
+- Discourage reassurance rituals through gentle limit-setting.

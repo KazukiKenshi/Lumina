@@ -1,6 +1,72 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+const fetch = require('node-fetch');
+
+// ---------------------------------------------
+// Centralized backend console logging (tee)
+// Captures all console output to a daily log file while preserving original console behavior.
+// ---------------------------------------------
+const originalConsole = { ...console };
+const logDir = path.join(__dirname, 'logs');
+if (!fs.existsSync(logDir)) {
+  fs.mkdirSync(logDir, { recursive: true });
+}
+function currentDateStamp() {
+  const d = new Date();
+  return d.toISOString().slice(0, 10); // YYYY-MM-DD
+}
+function timestamp() {
+  return new Date().toISOString();
+}
+function getLogStream() {
+  const filePath = path.join(logDir, `backend-terminal-${currentDateStamp()}.log`);
+  return fs.createWriteStream(filePath, { flags: 'a' });
+}
+let stream = getLogStream();
+// Rotate file if date changes during long runtimes (checked every log call)
+let currentDate = currentDateStamp();
+function ensureStream() {
+  const today = currentDateStamp();
+  if (today !== currentDate) {
+    stream.end();
+    stream = getLogStream();
+    currentDate = today;
+  }
+}
+function writeLine(level, args) {
+  ensureStream();
+  try {
+    const line = `[${timestamp()}] [${level.toUpperCase()}] ` + args.map(a => {
+      if (a instanceof Error) return a.stack || a.toString();
+      if (typeof a === 'object') {
+        try { return JSON.stringify(a); } catch { return String(a); }
+      }
+      return String(a);
+    }).join(' ') + '\n';
+    stream.write(line);
+  } catch (e) {
+    originalConsole.error('Logging write failed', e);
+  }
+}
+['log', 'info', 'warn', 'error'].forEach(level => {
+  console[level] = (...args) => {
+    writeLine(level, args);
+    originalConsole[level](...args);
+  };
+});
+process.on('uncaughtException', err => {
+  console.error('Uncaught Exception:', err);
+});
+process.on('unhandledRejection', reason => {
+  console.error('Unhandled Rejection:', reason);
+});
+
+console.log('[BOOT] Backend logging initialized');
 const axios = require('axios');
 const { router: authRouter, authenticateToken } = require('./auth');
 const connectDB = require('./config/database');

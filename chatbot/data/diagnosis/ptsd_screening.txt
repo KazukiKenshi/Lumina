@@ -1,0 +1,20 @@
+Post-Traumatic Stress Indicators (PTSD)
+--------------------------------------
+Context: Exposure to actual/threatened death, serious injury, or sexual violence (direct, witnessed, learned about, or repeated indirect exposure).
+
+Clusters:
+1. Intrusion: Unwanted memories, nightmares, flashbacks, psychological distress at cues.
+2. Avoidance: Efforts to avoid thoughts, feelings, conversations, places, reminders.
+3. Negative Cognitions/Mood: Detachment, persistent negative beliefs ("I am ruined"), blame, diminished interest.
+4. Arousal/Reactivity: Hypervigilance, exaggerated startle, irritability/anger, concentration problems, sleep disturbance.
+
+Screening Notes:
+- Symptoms persist >1 month.
+- Clinically significant distress/impairment.
+- Differentiate from acute stress (duration <1 month).
+- Rule out substance effects and TBI symptom overlap.
+
+Support Prompts:
+- Normalize adaptive survival responses.
+- Encourage gradual, supported exposure and grounding.
+- Suggest professional evaluation for persistent functional impairment.

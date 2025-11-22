@@ -1,5 +1,6 @@
 import os
 import json
+import re
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain.docstore.document import Document
@@ -13,6 +14,23 @@ class RAGDataStore:
         self.base_dir = base_dir
         self.store_dir = store_dir
         self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+        # Attempt to import rapidfuzz for fuzzy matching; fallback to simple edit distance
+        try:
+            from rapidfuzz import fuzz
+            self.fuzz = fuzz
+        except Exception:
+            self.fuzz = None
+        # Load tag index if present
+        self.tags = {}
+        tags_path = os.path.join(self.base_dir, 'tags.json')
+        if os.path.exists(tags_path):
+            try:
+                with open(tags_path, 'r', encoding='utf-8') as f:
+                    import json
+                    self.tags = json.load(f)
+                print(f"[RAG] Loaded tags for categories: {list(self.tags.keys())}")
+            except Exception as e:
+                print(f"[RAG][WARN] Failed to load tags.json: {e}")
 
         # Optional cross-encoder for reranking (fast and accurate)
         try:
@@ -94,11 +112,21 @@ class RAGDataStore:
 
         # --- 1️⃣ Filter by hint conditions (if provided) ---
         if hint_conditions:
-            raw_docs = [
-                d
-                for d in raw_docs
-                if any(c.lower() in d.metadata.get("source", "").lower() for c in hint_conditions)
-            ] or raw_docs  # fallback if empty
+            # Expand filtering logic: match either filename or associated tags
+            cat_tags = self.tags.get(category, {})
+            def doc_matches(d):
+                source = d.metadata.get('source', '').lower()
+                # direct filename substring match
+                if any(c.lower() in source for c in hint_conditions):
+                    return True
+                # tag match
+                file_tags = [t.lower() for t in cat_tags.get(source, [])]
+                return any(t in hint_conditions_lower for t in file_tags)
+
+            hint_conditions_lower = [c.lower() for c in hint_conditions]
+            filtered = [d for d in raw_docs if doc_matches(d)]
+            if filtered:
+                raw_docs = filtered
 
         # --- 2️⃣ Optional cross-encoder re-ranking ---
         if self.reranker:
@@ -119,3 +147,75 @@ class RAGDataStore:
 
         # --- 4️⃣ Return clean final text ---
         return combined_text.strip()
+
+    # ------------------------
+    # Tag Matching Helper
+    # ------------------------
+    def match_tags(self, query: str, category: str, min_len: int = 3):
+        """Return matched tags using:
+        1. Direct substring
+        2. Stem/lemma normalization (simple heuristic)
+        3. Fuzzy partial ratio / edit distance fallback
+        """
+        query_lower = query.lower()
+        tokens = [t for t in re.split(r"\W+", query_lower) if t]
+
+        def simple_stem(w: str) -> str:
+            # Very lightweight stemmer (avoid heavy deps): strip common suffixes
+            for suf in ("ingly", "edly", "ingly", "ing", "edly", "ed", "ness", "less", "ful", "ment", "tion", "sion", "ions", "tional", "s", "es"):
+                if w.endswith(suf) and len(w) - len(suf) >= 3:
+                    return w[: -len(suf)]
+            return w
+
+        token_stems = {simple_stem(t) for t in tokens}
+
+        matched = set()
+        for fname, tag_list in self.tags.get(category, {}).items():
+            for tag in tag_list:
+                tl = tag.lower()
+                if len(tl) < min_len:
+                    continue
+                # Direct substring / phrase match
+                if tl in query_lower:
+                    matched.add(tl)
+                    continue
+                # Token / stem overlap (for multi-word tags split them)
+                parts = [p for p in re.split(r"\W+", tl) if p]
+                part_stems = {simple_stem(p) for p in parts}
+                if part_stems & token_stems:
+                    matched.add(tl)
+                    continue
+                # Fuzzy: compare each token to tag (or last word of tag) if rapidfuzz available
+                if self.fuzz:
+                    last = parts[-1] if parts else tl
+                    for tok in tokens:
+                        if len(tok) >= 3:
+                            try:
+                                score = self.fuzz.partial_ratio(tok, tl)
+                            except Exception:
+                                score = 0
+                            if score >= 85:  # high-confidence fuzzy match
+                                matched.add(tl)
+                                break
+                else:
+                    # Simple edit distance fallback (Levenshtein) for last word only
+                    def edit_distance(a, b):
+                        m, n = len(a), len(b)
+                        if m == 0: return n
+                        if n == 0: return m
+                        dp = [[0]*(n+1) for _ in range(m+1)]
+                        for i in range(m+1): dp[i][0] = i
+                        for j in range(n+1): dp[0][j] = j
+                        for i in range(1,m+1):
+                            for j in range(1,n+1):
+                                cost = 0 if a[i-1]==b[j-1] else 1
+                                dp[i][j] = min(dp[i-1][j]+1, dp[i][j-1]+1, dp[i-1][j-1]+cost)
+                        return dp[m][n]
+                    last = parts[-1] if parts else tl
+                    for tok in tokens:
+                        if len(tok) >= 4:
+                            dist = edit_distance(tok, last)
+                            if dist <= 2:  # allow small typo
+                                matched.add(tl)
+                                break
+        return list(matched)

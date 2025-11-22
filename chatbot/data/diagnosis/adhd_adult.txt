@@ -1,0 +1,24 @@
+Adult ADHD Indicators
+---------------------
+Core Domains:
+1. Inattention: Disorganization, losing items, difficulty sustaining focus, careless mistakes.
+2. Hyperactivity/Impulsivity: Restlessness (internal), fidgeting, interrupting, difficulty waiting turns.
+
+Adult Presentation Nuances:
+- Hyperactivity may appear as mental racing or task switching instead of overt physical movement.
+- Masking strategies (lists, alarms) partially compensate but fail under stress.
+- Executive dysfunction: initiation delay, time blindness, inconsistent follow-through.
+
+Functional Impact Areas:
+- Work: missed deadlines, inconsistent productivity.
+- Relationships: perceived inattentiveness during conversation.
+- Daily life: clutter accumulation, unfinished projects.
+
+Differential Points:
+- Distinguish from anxiety (ADHD: distractibility across contexts vs worry-focused).
+- Differentiate depression-related concentration issues (episodic vs chronic pattern).
+
+Support Prompts:
+- Encourage structured external supports (calendar blocking, visual boards).
+- Break tasks into tiny actionable steps (2–5 minute starters).
+- Suggest professional assessment for formal diagnosis & treatment planning.

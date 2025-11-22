@@ -1,0 +1,40 @@
+{
+  "diagnosis": {
+    "anxiety.txt": ["anxiety", "anxious", "worry", "worried", "restless", "on edge", "tension", "nervous", "racing thoughts", "overthinking", "can't relax", "panic", "stress"],
+    "depression.txt": ["depression", "depressed", "low mood", "empty", "anhedonia", "no interest", "worthless", "guilty", "tired", "fatigue", "hopeless", "down", "can't concentrate", "suicidal", "dark thoughts"],
+    "ptsd_screening.txt": ["ptsd", "trauma", "flashback", "nightmare", "intrusion", "triggered", "hypervigilant", "startle", "avoidance", "dissociation", "combat", "abuse", "assault"],
+    "ocd_features.txt": ["ocd", "obsession", "obsessive", "compulsion", "compulsive", "ritual", "checking", "contamination", "intrusive thought", "repetitive", "cleaning", "perfection"],
+    "bipolar_indicators.txt": ["bipolar", "manic", "mania", "hypomanic", "mood swing", "elevated", "grandiose", "rapid speech", "high energy", "impulsive", "spending spree", "can't sleep"],
+    "adhd_adult.txt": ["adhd", "inattention", "distracted", "can't focus", "hyperactivity", "hyperactive", "impulsive", "forgetful", "time blind", "procrastinate", "restless", "fidget"],
+    "panic_disorder.txt": ["panic", "panic attack", "palpitations", "heart racing", "hyperventilation", "short of breath", "chest pain", "dizzy", "lightheaded", "numb", "tingling", "fear dying", "tight chest"],
+    "ptsd_screening.txt_dup": ["fear", "flashbacks", "traumatic", "memory", "vigiliant"]
+  },
+  "counselling": {
+    "cbt.txt": ["cbt", "thought", "distortion", "reframe", "negative thinking", "challenge thought", "automatic thought", "behavior activation", "balanced thought"],
+    "mindfulness.txt": ["mindful", "mindfulness", "present", "acceptance", "act", "defusion", "observe", "breathing", "body scan", "nonjudgmental", "awareness"],
+    "crisis.txt": ["crisis", "safety", "helpline", "risk", "hotline", "danger", "self harm", "emergency", "urgent", "suicide help"],
+    "emotion_regulation.txt": ["emotion", "regulation", "opposite action", "validation", "name emotion", "allow feeling", "calming", "soothe", "ground", "slow breathing"],
+    "grounding.txt": ["grounding", "sensory", "dissociation", "anchor", "5 4 3 2 1", "present moment", "reality check", "orient", "touch", "sound"],
+    "journaling.txt": ["journal", "journaling", "logging", "thought record", "gratitude", "write down", "reflect", "track mood", "diary"],
+    "sleep_hygiene.txt": ["sleep", "insomnia", "hygiene", "circadian", "can't sleep", "wake up", "sleep routine", "bedtime", "sleep quality"],
+    "interpersonal_effectiveness.txt": ["interpersonal", "boundary", "assert", "relationship", "communication", "say no", "ask need", "respect", "conflict", "listening"],
+    "distress_tolerance.txt": ["distress", "tolerance", "accepts", "tip", "cope now", "ride wave", "survive urge", "short term", "crisis skill"],
+    "relaxation.txt": ["relax", "relaxation", "breathe", "breathing", "calm down", "progressive muscle", "visualize", "guided", "down regulate"],
+    "self_compassion.txt": ["self compassion", "be kind", "inner critic", "harsh voice", "gentle", "accept self", "compassionate", "human"],
+    "emotion_regulation.txt_dup": ["feelings", "intense emotions", "too strong", "overwhelmed"],
+    "distress_tolerance.txt_dup": ["urge", "impulse", "can't cope", "need relief"]
+  },
+  "wellness": {
+    "mind_body.txt": ["exercise", "movement", "nutrition", "food", "sleep", "stress", "healthy body", "physical health", "energy"],
+    "relationships.txt": ["relationships", "relationship", "listening", "empathy", "boundary", "trust", "friend", "partner", "conflict", "support"],
+    "stress.txt": ["stress", "stressed", "work-life", "burnout", "overwhelmed", "relaxation", "balance", "break", "pressure", "tense"],
+    "habit_building.txt": ["habit", "routine", "behavior", "cue", "small steps", "consistency", "daily", "track", "stack"],
+    "nutrition_mental_health.txt": ["nutrition", "diet", "omega-3", "vitamin", "hydration", "eat better", "food mood", "balanced meal", "gut"],
+    "physical_activity.txt": ["physical", "activity", "movement", "exercise", "workout", "walk", "stretch", "fitness", "active"],
+    "digital_hygiene.txt": ["digital", "screen", "notification", "focus", "scrolling", "online", "social media", "blue light", "phone"],
+    "social_connection.txt": ["social", "connection", "belonging", "support", "lonely", "friend", "community", "reach out", "isolation"],
+    "resilience_building.txt": ["resilience", "coping", "flexibility", "values", "bounce back", "handle stress", "adapt", "growth", "recovery"],
+    "nutrition_mental_health.txt_dup": ["eat", "food", "meal", "snack"],
+    "habit_building.txt_dup": ["start small", "build habit", "make routine"]
+  }
+}

@@ -1,0 +1,41 @@
+2025-11-22 16:57:29 INFO: -----
+Session: 20251122_165726
+Timestamp: 2025-11-22 16:57:29
+Mode: wellness | Risk: N/A
+User: ok bye
+Assistant: Goodbye! Remember, I'm here whenever you need support or advice. Take care of yourself and have a great day!
+2025-11-22 16:57:47 INFO: -----
+Session: 20251122_165726
+Timestamp: 2025-11-22 16:57:47
+Mode: counselling | Risk: N/A
+User: listen
+Assistant: I'm here to listen. What's on your mind? You can share as much or as little as you'd like.
+2025-11-22 16:57:58 INFO: -----
+Session: 20251122_165726
+Timestamp: 2025-11-22 16:57:58
+Mode: diagnosis | Risk: N/A
+User: do you
+Assistant: Thanks for sharing that earlier. I remember we discussed it — let's focus on how we can help you cope or make progress from here.
+2025-11-22 16:59:38 INFO: -----
+Session: 20251122_165726
+Timestamp: 2025-11-22 16:59:38
+Mode: wellness | Risk: N/A
+User: give 10 different exercises at home
+Assistant: Here are 10 different exercises you can do at home to support your physical and mental health:
+
+1. **Deep Breathing**: Inhale deeply through your nose for 4 seconds, hold for 4 seconds, and exhale through your mouth for 6 seconds. Repeat for 5-10 minutes.
+2. **Progressive Muscle Relaxation**: Tense and then relax each muscle group in your body, starting from your toes and working your way up to your head.
+3. **Yoga**: Follow along with a beginner yoga video online. Focus on poses like Child's Pose, Downward Dog, and Cat-Cow.
+4. **Bodyweight Squats**: Stand with feet shoulder-width apart and perform squats, keeping your back straight and knees behind toes.
+5. **Push-ups**: Start in a plank position and lower your body until your chest nearly touches the floor, then push back up.
+6. **Plank**: Hold a plank position for 20-60 seconds, engaging your core and keeping your body in a straight line.
+7. **Lunges**: Step forward with one foot, lowering your hips until both knees are bent at about a 90-degree angle, then push back up.
+8. **Glute Bridges**: Lie on your back with knees bent and feet flat on the floor, then lift your hips until your body forms a straight line from shoulders to knees.
+9. **Jumping Jacks**: Perform jumping jacks for 1-3 minutes to get your heart rate up.
+10. **Dancing**: Put on your favorite music and dance for 10-15 minutes to boost your mood and energy.
+2025-11-22 17:00:24 INFO: -----
+Session: 20251122_165726
+Timestamp: 2025-11-22 17:00:24
+Mode: wellness | Risk: N/A
+User: hello
+Assistant: Hello! How are you feeling today? I'm here to chat about anything you'd like.
