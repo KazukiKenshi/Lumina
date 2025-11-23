@@ -28,7 +28,7 @@ const authenticateToken = (req, res, next) => {
 };
 
 // Register endpoint
-router.post('api/auth/register', async (req, res) => {
+router.post('/register', async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
@@ -92,7 +92,7 @@ router.post('api/auth/register', async (req, res) => {
 });
 
 // Login endpoint
-router.post('api/auth/login', async (req, res) => {
+router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -136,7 +136,7 @@ router.post('api/auth/login', async (req, res) => {
 });
 
 // Verify token endpoint
-router.get('api/auth/verify', authenticateToken, (req, res) => {
+router.get('/verify', authenticateToken, (req, res) => {
   res.json({
     valid: true,
     user: req.user
