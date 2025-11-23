@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }) => {
 
   const verifyToken = useCallback(async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/auth/verify`);
+      const response = await axios.get(`/api/auth/verify`);
       setUser(response.data.user);
     } catch (error) {
       console.error('Token verification failed:', error);
@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (username, email, password) => {
     try {
-      const response = await axios.post(`${API_URL}/api/auth/register`, {
+      const response = await axios.post(`/api/auth/register`, {
         username,
         email,
         password
@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await axios.post(`${API_URL}/api/auth/login`, {
+      const response = await axios.post(`/api/auth/login`, {
         email,
         password
       });
