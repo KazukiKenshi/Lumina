@@ -1,4 +1,5 @@
 import io
+import os
 import base64
 from typing import Dict
 from PIL import Image
@@ -67,8 +68,9 @@ def predict():
     probs = predict_from_image(img)
     # Determine top emotion
     pred_label = max(probs.items(), key=lambda kv: kv[1])[0]
+    print(f"{pred_label} {probs}")
     return jsonify({"emotion": pred_label, "probabilities": probs})
 
 if __name__ == "__main__":
     # Simple dev server
-    app.run(host="0.0.0.0", port=8001)
+    app.run(host="0.0.0.0", port=os.getenv("EMOTION_API_PORT") or 8001)

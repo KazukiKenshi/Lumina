@@ -1,0 +1,13 @@
+CHATBOT_API_URL=http://chatbot:8000/api/chat
+EMOTION_API_URL=http://emotion_recognition:8001/predict
+MONGODB_URI=mongodb+srv://hiteshd258_db_user:abcd123@cluster0.zjfulqy.mongodb.net/Lumina
+SESSION_TIMEOUT=3600
+ALLOWED_ORIGINS=http://frontend:3000,http://frontend:3001
+REACT_APP_BACKEND_URL=http://server:5000
+EMOTION_RECOGNITION_API=http://emotion_recognition:8001
+EMOTION_API_PORT=8001
+CHATBOT_PORT=8000
+MISTRAL_API_KEY=hAUSwtg5y94ZWizLfZpevarYuIQZ5pht
+MONGO_URI=mongodb+srv://hiteshd258_db_user:abcd123@cluster0.zjfulqy.mongodb.net
+MONGO_DB=Lumina
+MONGO_COLLECTION=chathistories

@@ -3,3 +3,5 @@ vectorstores/
 __pycache__/
 emotion_recognition/DATASET/
 sample_prompt.txt
+.github/
+.env

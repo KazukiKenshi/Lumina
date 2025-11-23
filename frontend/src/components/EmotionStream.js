@@ -13,6 +13,7 @@ const EmotionStream = ({ intervalMs = 2000, enabled = true }) => {
   const [running, setRunning] = useState(false);
   const { token } = useAuth();
   const { addFrame } = useEmotion();
+  const API_URL = process.env.EMOTION_RECOGNITION_API || 'http://localhost:5000';
 
   useEffect(() => {
     if (!enabled) return;
@@ -67,7 +68,7 @@ const EmotionStream = ({ intervalMs = 2000, enabled = true }) => {
     try {
       const headers = { 'Content-Type': 'application/json' };
       if (token) headers['Authorization'] = `Bearer ${token}`;
-      const resp = await axios.post('http://localhost:5000/api/emotion-frame', { image_base64 }, { headers });
+      const resp = await axios.post(`${API_URL}/api/emotion-frame`, { image_base64 }, { headers });
       const em = resp.data.emotion || 'neutral';
       // Store frame in context window (no UI display)
       addFrame(em, resp.data.probabilities || null);

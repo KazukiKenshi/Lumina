@@ -7,9 +7,9 @@ import re
 import time
 from datetime import datetime
 from sentence_transformers import util
-from context import logger, rag_system, matcher, client
-from post_process import format_for_avatar
-from mode_classifier import classify_mode_with_context
+from src.context import logger, rag_system, matcher, client
+from src.post_process import format_for_avatar
+from src.mode_classifier import classify_mode_with_context
 
 class MentalHealthState(TypedDict, total=False):
 	user_input: str

@@ -16,6 +16,7 @@ const ChatInput = () => {
     const inputRef = useRef(null);
     const { addMessage } = useChat();
     const { getSummary } = useEmotion();
+    const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
 
     // Minimal SpeechRecognition setup
     useEffect(() => {
@@ -88,7 +89,7 @@ const ChatInput = () => {
                 frameCount: summary.frameCount,
                 windowMs: 30000
             } : null;
-            const response = await axios.post('http://localhost:5000/api/process-speech', {
+            const response = await axios.post(`${API_URL}/api/process-speech`, {
                 transcript: textToSend,
                 timestamp: new Date().toISOString(),
                 userId: user?.email || 'anonymous',

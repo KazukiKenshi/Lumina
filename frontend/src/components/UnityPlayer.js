@@ -23,9 +23,9 @@ const UnityPlayer = () => {
     
     const config = {
       arguments: [],
-      dataUrl: `${buildUrl}/build.data`,
-      frameworkUrl: `${buildUrl}/build.framework.js`,
-      codeUrl: `${buildUrl}/build.wasm`,
+      dataUrl: `${buildUrl}/build.data.br`,
+      frameworkUrl: `${buildUrl}/build.framework.js.br`,
+      codeUrl: `${buildUrl}/build.wasm.br`,
       streamingAssetsUrl: 'StreamingAssets',
       companyName: 'DefaultCompany',
       productName: 'Lumina-frontend',

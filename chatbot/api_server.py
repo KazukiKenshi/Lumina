@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from main import ChatSession
+from src.main import ChatSession
 import os
 from dotenv import load_dotenv
 

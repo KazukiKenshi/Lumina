@@ -6,8 +6,8 @@ from datetime import datetime
 from dotenv import load_dotenv
 from mistralai import Mistral
 
-from rag_store import RAGDataStore
-from symptom_reasoning import SymptomMatcher
+from src.rag_store import RAGDataStore
+from src.symptom_reasoning import SymptomMatcher
 
 # -------------------------
 # Logger + terminal capture setup

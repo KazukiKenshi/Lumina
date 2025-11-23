@@ -16,6 +16,7 @@ const ChatHistoryPage = () => {
   const [dates, setDates] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [page, setPage] = useState(0);
+  const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -23,7 +24,7 @@ const ChatHistoryPage = () => {
       try {
         const headers = { 'Content-Type': 'application/json' };
         if (token) headers['Authorization'] = `Bearer ${token}`;
-        const resp = await axios.get('http://localhost:5000/api/chat-history?limit=400&skip=0', { headers });
+        const resp = await axios.get(`${API_URL}/api/chat-history?limit=400&skip=0`, { headers });
         if (!resp.data.success) throw new Error('Failed to load history');
         const histories = resp.data.chatHistories || [];
         const byDate = {};

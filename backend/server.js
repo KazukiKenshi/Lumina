@@ -72,11 +72,6 @@ const { router: authRouter, authenticateToken } = require('./auth');
 const connectDB = require('./config/database');
 const ChatHistory = require('./models/ChatHistory');
 
-// Patch: Ensure userId is always a String for ChatHistory
-// If your ChatHistory schema uses mongoose.Schema.Types.ObjectId for userId, change it to String in models/ChatHistory.js
-// Example:
-// userId: { type: String, required: true },
-const { Client } = require('@gradio/client');
 require('dotenv').config();
 
 // Connect to MongoDB
@@ -218,8 +213,19 @@ async function convertToSpeech(text) {
       // Not JSON, use as is
     }
 
+    // Dynamically import the ESM-only Gradio client (works from CommonJS)
+    let ClientLib;
+    try {
+      const mod = await import('@gradio/client');
+      // handle named export or default export
+      ClientLib = mod.Client ?? mod.default ?? mod;
+    } catch (e) {
+      console.error('Failed to import @gradio/client', e);
+      return null;
+    }
+
     // Connect to Gradio TTS client
-    const client = await Client.connect("NihalGazi/Text-To-Speech-Unlimited");
+    const client = await ClientLib.connect("NihalGazi/Text-To-Speech-Unlimited");
     const result = await client.predict("/text_to_speech_app", {
       prompt: promptText,
       voice: "sage",
@@ -249,8 +255,6 @@ async function convertToSpeech(text) {
   } catch (error) {
     console.error('TTS API error:', error.message);
     
-    // If TTS fails, return null or generate a silent audio
-    // For now, return null and let frontend handle it
     return null;
   }
 }

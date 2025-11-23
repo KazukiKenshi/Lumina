@@ -7,6 +7,7 @@ const VoiceRecorder = () => {
   const [transcript, setTranscript] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [status, setStatus] = useState('');
+  API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
   
   const recognitionRef = useRef(null);
 
@@ -84,7 +85,7 @@ const VoiceRecorder = () => {
     
     try {
       // Send to backend API endpoint
-      const response = await axios.post('http://localhost:5000/api/process-speech', {
+      const response = await axios.post(`${API_URL}/api/process-speech`, {
         transcript: text,
         timestamp: new Date().toISOString(),
         userId: 'user123', // Replace with actual user ID
