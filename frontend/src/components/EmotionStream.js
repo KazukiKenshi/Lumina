@@ -13,7 +13,7 @@ const EmotionStream = ({ intervalMs = 2000, enabled = true }) => {
   const [running, setRunning] = useState(false);
   const { token } = useAuth();
   const { addFrame } = useEmotion();
-  const API_URL = process.env.EMOTION_RECOGNITION_API || 'http://localhost:5000';
+  const API_URL = process.env.EMOTION_RECOGNITION_API || '';
 
   useEffect(() => {
     if (!enabled) return;

@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(localStorage.getItem('token'));
 
-  const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://13.204.79.107:5000';
+  const API_URL = process.env.REACT_APP_BACKEND_URL || '';
 
   const verifyToken = useCallback(async () => {
     try {
