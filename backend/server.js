@@ -86,7 +86,7 @@ const PORT = process.env.PORT || 5000;
 // Parse ALLOWED_ORIGINS from environment variable
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
   ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
-  : ['http://localhost:3000']; // fallback for development
+  : ['http://localhost:3000', 'http://localhost:8001', 'http://localhost:3001']; // fallback for development
 
 // Configure CORS
 app.use(cors({
@@ -533,12 +533,15 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`\n🚀 Lumina Backend Server is running on port ${PORT}`);
   console.log(`📍 Health check: http://localhost:${PORT}/health`);
   console.log(`🎤 Speech API: http://localhost:${PORT}/api/process-speech`);
-  console.log(`💬 Chatbot API: http://localhost:${PORT}/api/chatbot`);
+  console.log(`💬 Chatbot API: ${CHATBOT_API_URL}`);
   console.log(`🔊 TTS API: http://localhost:${PORT}/api/text-to-speech\n`);
 });
+
+server.keepAliveTimeout = 120000;
+server.headersTimeout = 120000;
 
 module.exports = app;

@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(localStorage.getItem('token'));
 
-  const API_URL = process.env.REACT_APP_BACKEND_URL || '';
+  const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
 
   const verifyToken = useCallback(async () => {
     try {
@@ -61,6 +61,15 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       const message = error.response?.data?.error || 'Registration failed';
       return { success: false, error: message };
+    }
+  };
+
+  const healthCheck = async () => {
+    try {
+      await axios.get(`${API_URL}/api/health`);
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: 'Backend is unreachable' };
     }
   };
 

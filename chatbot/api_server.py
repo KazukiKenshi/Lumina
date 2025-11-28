@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app)
 
 # Store active sessions in memory (use Redis/database for production)
 sessions = {}
@@ -36,7 +36,24 @@ def chat():
         "text": "response text",
         "emotion": "neutral|sad|happy",
         "session_id": "session_id",
-        "timestamp": "ISO timestamp"
+        "timestamp": "ISO timestamp"lumina-chat  | [DB DEBUG] get_recent_exchanges called with n=4, user_id=hiteshd258@gmail.com
+lumina-chat  | [DB ERROR] Could not connect to MongoDB: localhost:27017: [Errno 111] Connection refused (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 3.0s, Topology Description: <TopologyDescription id: 6924f0a44bcdb35b4fc902ed, topology_type: Unknown, servers: [<ServerDescription ('localhost', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('localhost:27017: [Errno 111] Connection refused (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+lumina-chat  | [API] Created new session: 20251124_235623 for user: hiteshd258@gmail.com
+lumina-chat  | [API] Processing message from user: hiteshd258@gmail.com
+lumina-chat  | [API] Message: [neutral face] hello
+lumina-chat  | [MODE] WELLNESS (confidence: 0.19)
+lumina-chat  | [RETRIEVE] mode=wellness k=3 tags=[]
+lumina-chat  | [ERROR] Mistral API error: API error occurred: Status 401 Content-Type "application/json; charset=utf-8". Body: {"detail":"Unauthorized"}
+lumina-chat  | 
+lumina-chat  | [2025-11-24 23:56:25] Mode: wellness | Risk: N/A
+lumina-chat  | User: [neutral face] hello
+lumina-chat  | 23:56:25 INFO: -----
+lumina-chat  | Session: 20251124_235623
+lumina-chat  | Timestamp: 2025-11-24 23:56:25
+lumina-chat  | Mode: wellness | Risk: N/A
+lumina-chat  | User: [neutral face] hello
+lumina-chat  | Assistant: I apologize, but I'm having technical difficulties right now. Please try again in a moment. If you're in crisis, please contact emergency services or a crisis helpline immediately. Error: 'NoneType' object has no attribute 'choices'
+lumina-chat  | 172.19.0.3 - - [24/Nov/2025 23:56:25] "POST /api/chat HTTP/1.1" 200 -
     }
     """
     try:

@@ -16,7 +16,7 @@ const ChatInput = () => {
     const inputRef = useRef(null);
     const { addMessage } = useChat();
     const { getSummary } = useEmotion();
-    const API_URL = process.env.REACT_APP_BACKEND_URL || '';
+    const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
 
     // Minimal SpeechRecognition setup
     useEffect(() => {
