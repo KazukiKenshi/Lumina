@@ -12,47 +12,73 @@ const ChatInput = () => {
     const [inputText, setInputText] = useState('');
     const [isRecording, setIsRecording] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [speechAvailable, setSpeechAvailable] = useState(true);
     const recognitionRef = useRef(null);
     const inputRef = useRef(null);
     const { addMessage } = useChat();
     const { getSummary } = useEmotion();
-    const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+    const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://backend:5000';
 
     // Minimal SpeechRecognition setup
     useEffect(() => {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {
             console.warn('Speech recognition not supported');
+            setSpeechAvailable(false);
             return;
         }
-        const rec = new SpeechRecognition();
-        rec.continuous = false;
-        rec.interimResults = false;
-        rec.lang = 'en-US';
+        
+        try {
+            const rec = new SpeechRecognition();
+            rec.continuous = false;
+            rec.interimResults = false;
+            rec.lang = 'en-US';
 
-        rec.onresult = (event) => {
-            try {
-                const transcript = event.results[0][0].transcript.trim();
-                if (transcript) {
-                    // Stop recording immediately so we don't get duplicate events
-                    try { rec.stop(); } catch {}
-                    // Submit directly with captured transcript (avoid waiting for state flush)
-                    if (!isProcessing) {
-                        // add user message then submit
-                        addMessage('user', transcript);
-                        handleSubmit({ preventDefault: () => {} }, transcript);
+            rec.onresult = (event) => {
+                try {
+                    const transcript = event.results[0][0].transcript.trim();
+                    if (transcript) {
+                        // Stop recording immediately so we don't get duplicate events
+                        try { rec.stop(); } catch {}
+                        // Submit directly with captured transcript (avoid waiting for state flush)
+                        if (!isProcessing) {
+                            // add user message then submit
+                            addMessage('user', transcript);
+                            handleSubmit({ preventDefault: () => {} }, transcript);
+                        }
+                        // Clear input for auto submission
+                        setInputText('');
                     }
-                    // Clear input for auto submission
-                    setInputText('');
+                } catch (err) {
+                    console.error('SR parse error:', err);
                 }
-            } catch (err) {
-                console.error('SR parse error:', err);
-            }
+            };
+            
+            rec.onerror = (e) => {
+                console.error('SR error:', e.error, e);
+                setIsRecording(false);
+                
+                // Show user-friendly error messages
+                if (e.error === 'network') {
+                    setSpeechAvailable(false);
+                    console.warn('Speech recognition unavailable due to network issues. Text input still available.');
+                }
+            };
+            
+            rec.onend = () => setIsRecording(false);
+            recognitionRef.current = rec;
+        } catch (err) {
+            console.error('Failed to initialize Speech Recognition:', err);
+            setSpeechAvailable(false);
+        }
+        
+        return () => { 
+            try { 
+                if (recognitionRef.current) {
+                    recognitionRef.current.stop(); 
+                }
+            } catch {} 
         };
-        rec.onerror = (e) => console.error('SR error:', e.error);
-        rec.onend = () => setIsRecording(false);
-        recognitionRef.current = rec;
-        return () => { try { rec.stop(); } catch {} };
     }, [isProcessing]);
 
     // Pre-flight microphone permission request
@@ -181,6 +207,11 @@ const ChatInput = () => {
 
     return (
         <div className="chat-input-container">
+            {!speechAvailable && (
+                <div className="warning-banner" style={{padding: '8px', background: '#fff3cd', marginBottom: '8px', borderRadius: '4px'}}>
+                    ⚠️ Voice input unavailable. Please use text input or check your internet connection.
+                </div>
+            )}
             <form onSubmit={handleSubmit} className="chat-input-form">
                 <div className="input-wrapper">
                     <input
@@ -200,8 +231,8 @@ const ChatInput = () => {
                         type="button"
                         onClick={toggleRecording}
                         className={`mic-button ${isRecording ? 'recording' : ''}`}
-                        disabled={isProcessing}
-                        title={isRecording ? 'Stop Recording' : 'Start Recording'}
+                        disabled={isProcessing || !speechAvailable}
+                        title={speechAvailable ? (isRecording ? 'Stop Recording' : 'Start Recording') : 'Voice input unavailable'}
                     >
                         {isRecording ? '🎤' : '🎙️'}
                     </button>

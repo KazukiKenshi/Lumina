@@ -5,14 +5,14 @@ services:
     ports:
       - 3000:80
     env_file:
-      - ./frontend/.env
+      - ./.env
     
   backend:
     build: ./backend
     ports:
       - 5000:5000
     env_file:
-      - ./backend/.env
+      - ./.env
   
   emotion-recognition:
     build: ./emotion_recognition
@@ -24,4 +24,4 @@ services:
     ports:
       - 5001:5001
     env_file:
-      - ./chatbot/.env
+      - ./.env

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/lumina';
+const MONGODB_URI = process.env.MONGO_URI + MONGO_DB || 'mongodb://localhost:27017/lumina';
 
 async function dropUsernameIndex() {
   try {
